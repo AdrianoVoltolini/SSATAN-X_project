@@ -30,8 +30,32 @@ for i in range(num_nodes):
 
 G.add_edges_from(random.choices(edges,k=num_edges)) # sceglie edges a caso tra quelli possibili
 
-pos = nx.circular_layout(G)
+if __name__ == "__main__": # parte solo quando fai partire questo script da qui. Disegna il graph
 
-if __name__ == "__main__": # parte solo quando fate partire questo script direttamente
-    nx.draw(G,pos)
+    sane_nodes = []
+    infected_nodes = []
+    diagnosed_nodes = []
+    morti_nodes = []
+
+    for i in G.nodes():
+        match nx.get_node_attributes(G,"status")[i]:
+            case 0:
+                sane_nodes.append(i)
+            case 1:
+                infected_nodes.append(i)
+            case 2:
+                diagnosed_nodes.append(i)
+            case 3:
+                morti_nodes.append(i)
+
+    pos = nx.circular_layout(G) # determina come vengono disposti i nodi nel plot
+
+    nx.draw_networkx_nodes(G, pos, nodelist=sane_nodes, node_color="blue")
+    nx.draw_networkx_nodes(G, pos, nodelist=infected_nodes, node_color="red")
+    nx.draw_networkx_nodes(G, pos, nodelist=diagnosed_nodes, node_color="brown")
+    nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
+
+    nx.draw_networkx_edges(G,pos)
+    
     plt.show()
+
