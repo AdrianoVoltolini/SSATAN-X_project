@@ -22,14 +22,14 @@ for i in range(len(ass_rates)):
             a0 += propensity
             ass_propensities.append(((i,j),propensity))
 
-# genera due numeri random
-r1 = random.uniform()
-r2 = random.uniform()
-
-
-
-
 print(ass_propensities)
+
+# genera due numeri random. Ho deciso di seguire il libro di marchetti perché nel paper non si capisce una minchia
+r1 = random.uniform(0,1)
+r2 = random.uniform(0,1)
+
+print(r1,r2)
+
 a0 = 0
 
 # while t<tF:
