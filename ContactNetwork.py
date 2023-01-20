@@ -1,4 +1,4 @@
-import numpy as np
+#import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
@@ -13,8 +13,8 @@ status_list = [0]*round(num_nodes*0.9) + [1]*round(num_nodes*0.1) # 0:Sano, 1:In
 random.shuffle(status_list)
 
 nodes = [(x,{
- "ass_rate": np.random.uniform(0.5,2.5),
- "dis_rate": np.random.uniform(0.4,2.0),
+ "ass_rate": random.uniform(0.5,2.5),
+ "dis_rate": random.uniform(0.4,2.0),
  "status" : status_list[x]
  })
  for x in range(num_nodes)] # nodi creati casualmente
