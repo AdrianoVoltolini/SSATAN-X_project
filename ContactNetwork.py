@@ -30,7 +30,8 @@ for i in range(num_nodes):
 
 G.add_edges_from(random.choices(edges,k=num_edges)) # sceglie edges a caso tra quelli possibili
 
-pos = nx.kamada_kawai_layout(G)
+pos = nx.circular_layout(G)
 
-nx.draw(G)
-plt.show()
+if __name__ == "__main__": # parte solo quando fate partire questo script direttamente
+    nx.draw(G,pos)
+    plt.show()
