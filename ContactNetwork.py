@@ -37,9 +37,11 @@ if __name__ == "__main__": # parte solo quando fai partire questo script da qui.
     diagnosed_nodes = []
     morti_nodes = []
 
+    pos = nx.circular_layout(G) # determina come vengono disposti i nodi nel plot
+
     for i in G.nodes(): # smista i nodi in base allo status per colorarli dopo
-        match nx.get_node_attributes(G,"status")[i]:
-            case 0:
+        match nx.get_node_attributes(G,"status")[i]: 
+            case 0: # modo figo per fare if/elif/else in python 3.10+
                 sane_nodes.append(i)
             case 1:
                 infected_nodes.append(i)
@@ -47,8 +49,6 @@ if __name__ == "__main__": # parte solo quando fai partire questo script da qui.
                 diagnosed_nodes.append(i)
             case 3:
                 morti_nodes.append(i)
-
-    pos = nx.circular_layout(G) # determina come vengono disposti i nodi nel plot
 
     nx.draw_networkx_nodes(G, pos, nodelist=sane_nodes, node_color="blue") # disegna e colora i nodi
     nx.draw_networkx_nodes(G, pos, nodelist=infected_nodes, node_color="red")
