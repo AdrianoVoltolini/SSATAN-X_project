@@ -1,0 +1,1 @@
+from ContactNetwork import G
