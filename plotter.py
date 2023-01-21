@@ -18,16 +18,15 @@ def animate(frame):
     diagnosed_nodes = []
     morti_nodes = []
 
-    for i in G.nodes(): # smista i nodi in base allo status per colorarli dopo
-        match nx.get_node_attributes(G,"status")[i]: 
-            case 0: # modo figo per fare if/elif/else in python 3.10+
-                sane_nodes.append(i)
-            case 1:
-                infected_nodes.append(i)
-            case 2:
-                diagnosed_nodes.append(i)
-            case 3:
-                morti_nodes.append(i)
+    for i in G.nodes(): # smista i nodi in base allo status per colorarli dopo 
+        if nx.get_node_attributes(G,"status")[i] == 0:
+            sane_nodes.append(i)
+        elif nx.get_node_attributes(G,"status")[i] == 1:
+            infected_nodes.append(i)
+        elif nx.get_node_attributes(G,"status")[i] == 2:
+            diagnosed_nodes.append(i)
+        else:
+            morti_nodes.append(i)
 
     nx.draw_networkx_nodes(G, pos, nodelist=sane_nodes, node_color="blue") # disegna e colora i nodi
     nx.draw_networkx_nodes(G, pos, nodelist=infected_nodes, node_color="red")
