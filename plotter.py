@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt, animation
 import networkx as nx
-import ffmpeg
+#import ffmpeg
 
 from ContactNetwork import G
 from SSA import SSA
