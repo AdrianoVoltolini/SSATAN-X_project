@@ -5,7 +5,7 @@ num_nodes = 10
 num_edges = 20 # WARNING: non mettere più di N(N-1)/2 edges!
 
 #percentuale della popolazione iniziale
-t0_infetti = 0.2
+t0_infetti = 0.2 
 t0_diagnosed = 0.1
 t0_morti = 0.1
 t0_sani = 1 - t0_infetti - t0_diagnosed - t0_morti
