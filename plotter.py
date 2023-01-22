@@ -28,13 +28,15 @@ def animate(frame):
         else:
             morti_nodes.append(i)
 
+    plt.title(f"SSA Contact Dynamics. Num of Edges: {len(G.edges)}")
+
+    nx.draw_networkx_edges(G,pos) # disegna gli edge
+
     nx.draw_networkx_nodes(G, pos, nodelist=sane_nodes, node_color="blue") # disegna e colora i nodi
     nx.draw_networkx_nodes(G, pos, nodelist=infected_nodes, node_color="red")
     nx.draw_networkx_nodes(G, pos, nodelist=diagnosed_nodes, node_color="brown")
     nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
 
-    nx.draw_networkx_edges(G,pos) # disegna gli edge
-    plt.title(f"SSA Contact Dynamics. Num of Edges: {len(G.edges)}")
 
 ani = animation.FuncAnimation(fig, animate, interval=500, frames=120)
 plt.show()

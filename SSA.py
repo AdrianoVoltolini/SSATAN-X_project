@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 import random
+from parametri import w_sano, w_infetto, w_diagnosed, w_dead
 
 def SSA(G):
 
@@ -13,14 +14,14 @@ def SSA(G):
 
     contact_propensities = []
 
-    # 0:Sano, 1:Infetto, 2:Diagnosticato, 3:Morto
-    prop_diz = {0: 1, 1: 1, 2:1/3, 3:0} # per determinare come modificare le propensities degli edges in base allo status dei nodi 
+    # per modificare i rate in base allo status del nodo
+    prop_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
     
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
             if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = (ass_rates[i]*prop_diz[statuses[i]])*(ass_rates[j]*prop_diz[statuses[j]]) # le propensities sono (lambda_j * lambda_k)
+                ass_propensity = (ass_rates[i]*prop_diz[statuses[i]])*(ass_rates[j]*prop_diz[statuses[j]])
                 r0 += ass_propensity
                 contact_propensities.append(((i,j),ass_propensity,True)) # True per indicare che reazione crea un edge
 
