@@ -6,17 +6,21 @@ def SSA(G):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
+    statuses = list(nx.get_node_attributes(G,"status").values())
 
     r0 = 0 # contact dynamics
     a0 = 0 # epidemic dynamics
 
     contact_propensities = []
 
+    # 0:Sano, 1:Infetto, 2:Diagnosticato, 3:Morto
+    prop_diz = {0: 1, 1: 1, 2:1/3, 3:0} # per determinare come modificare le propensities degli edges in base allo status dei nodi 
+    
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
             if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = ass_rates[i]*ass_rates[j] # le propensities sono (lambda_j * lambda_k)
+                ass_propensity = (ass_rates[i]*prop_diz[statuses[i]])*(ass_rates[j]*prop_diz[statuses[j]]) # le propensities sono (lambda_j * lambda_k)
                 r0 += ass_propensity
                 contact_propensities.append(((i,j),ass_propensity,True)) # True per indicare che reazione crea un edge
 
