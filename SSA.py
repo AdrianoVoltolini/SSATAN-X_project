@@ -1,9 +1,8 @@
 import numpy as np
 import networkx as nx
-import random
-from parametri import w_sano, w_infetto, w_diagnosed, w_dead
+from parametri import w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta_infected, beta_susceptibles, delta
 
-def SSA(G):
+def SSA_full(G):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
@@ -12,18 +11,18 @@ def SSA(G):
     r0 = 0 # contact dynamics
     a0 = 0 # epidemic dynamics
 
-    contact_propensities = []
+    propensities = []
 
     # per modificare i rate in base allo status del nodo
-    prop_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
+    contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
     
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
             if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = (ass_rates[i]*prop_diz[statuses[i]])*(ass_rates[j]*prop_diz[statuses[j]])
+                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
                 r0 += ass_propensity
-                contact_propensities.append(((i,j),ass_propensity,True)) # True per indicare che reazione crea un edge
+                propensities.append(((i,j),ass_propensity,"contact",True))#True per indicare che reazione crea un edge
 
     #computa le propensities che rompono edges
     for i in range(len(dis_rates)):
@@ -31,35 +30,59 @@ def SSA(G):
             if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0 += dis_propensity
-                contact_propensities.append(((i,j),dis_propensity,False)) # False per indicare che reazione rompe un edge
+                propensities.append(((i,j),dis_propensity,"contact",False))#False per indicare che reazione rompe un edge
 
-    #print(contact_propensities)
-    # print(a0)
+    #computa propensities I+S e D+S
+    for edge in G.edges():
+        n1 = statuses[edge[0]]
+        n2 = statuses[edge[1]]
+        if (n1,n2) == (0,1) or (n1,n2) == (1,0): #caso S+I o I+S
+            a0 += gamma
+            propensities.append((edge,gamma,"epidemic"))
+        elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
+            a0 += gamma*w_gamma
+            propensities.append((edge,gamma*w_gamma,"epidemic"))
+        
 
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
-    r1 = random.uniform(0,1)
-    r2 = random.uniform(0,1)
+    r1 = np.random.uniform(0,1)
+    r2 = np.random.uniform(0,1)
 
-    r0r1 = r0*r1
+    r0a0_r1 = (r0+a0)*r1
     R_index = 0
     # Trova la prossima reazione
-    for i in range(len(contact_propensities)):
-        #print(f"calculating {r0r1}-{contact_propensities[i][1]}")
-        r0r1 -= contact_propensities[i][1]
+    for i in range(len(propensities)):
+        #print(f"calculating {r0a0_r1}-{propensities[i][1]}")
+        r0a0_r1 -= propensities[i][1]
         R_index = i
-        if r0r1 <= 0:
+        if r0a0_r1 <= 0:
             break
-    #print(contact_propensities[R_index])
+    # print(propensities[R_index])
 
     # computa tau
-    tau = np.log(1/r2)/r0
+    tau = np.log(1/r2)/(r0+a0)
     #print(tau)
 
     # aggiorniamo il graph
-    if contact_propensities[R_index][2] == True:
-        G.add_edge(contact_propensities[R_index][0][0],contact_propensities[R_index][0][1])
+
+    if propensities[R_index][2] == "contact":
+        if propensities[R_index][3] == True:
+            G.add_edge(propensities[R_index][0][0],propensities[R_index][0][1])
+        else:
+            G.remove_edge(propensities[R_index][0][0],propensities[R_index][0][1])
     else:
-        G.remove_edge(contact_propensities[R_index][0][0],contact_propensities[R_index][0][1])
+        n1 = propensities[R_index][0][0]
+        n2 = propensities[R_index][0][1]
+        n1_status = nx.get_node_attributes(G,"status")[n1]
+        
+        if n1_status == 0:
+            n1_status = 1
+            n1_attributes = {"ass_rate": ass_rates[n1],"dis_rate": dis_rates[n1],"status": n1_status}
+            nx.set_node_attributes(G,{n1:n1_attributes})
+        else:
+            n2_status = 1
+            n2_attributes = {"ass_rate": ass_rates[n2],"dis_rate": dis_rates[n2],"status": n2_status}
+            nx.set_node_attributes(G,{n2:n2_attributes})
 
     #print(G.edges())
     return tau

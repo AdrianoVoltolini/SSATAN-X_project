@@ -3,7 +3,7 @@ import networkx as nx
 #import ffmpeg
 
 from ContactNetwork import G
-from SSA import SSA
+from SSA import SSA_full
 
 fig = plt.figure()
 
@@ -11,7 +11,7 @@ pos = nx.circular_layout(G) # determina come vengono disposti i nodi
 
 def animate(frame):
     fig.clear()
-    SSA(G)
+    SSA_full(G)
 
     sane_nodes = []
     infected_nodes = []
@@ -28,7 +28,7 @@ def animate(frame):
         else:
             morti_nodes.append(i)
 
-    plt.title(f"SSA Contact Dynamics. Num of Edges: {len(G.edges)}")
+    plt.title(f"SSA Contact and Epidemic Dynamics")
 
     nx.draw_networkx_edges(G,pos) # disegna gli edge
 
@@ -38,7 +38,7 @@ def animate(frame):
     nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
 
 
-ani = animation.FuncAnimation(fig, animate, interval=500, frames=120)
+ani = animation.FuncAnimation(fig, animate, interval=200, frames=120)
 plt.show()
 
 # per salvare il video
