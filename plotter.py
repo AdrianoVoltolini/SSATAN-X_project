@@ -37,11 +37,12 @@ def animate(frame):
     nx.draw_networkx_nodes(G, pos, nodelist=diagnosed_nodes, node_color="brown")
     nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
 
+    plt.axis([-1.5,1.5,-1.5,1.5]) #margini di matplotlib
 
-ani = animation.FuncAnimation(fig, animate, interval=200, frames=120)
+ani = animation.FuncAnimation(fig, animate, interval=200, frames=360)
 plt.show()
 
 # per salvare il video
-# writervideo = animation.FFMpegWriter(fps=2)
-# ani.save('SSA_Contact_dynamics.mp4', writer=writervideo)
+# writervideo = animation.FFMpegWriter(fps=6)
+# ani.save('SSA_dynamics.mp4', writer=writervideo)
 # plt.close()
