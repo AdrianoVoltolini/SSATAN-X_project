@@ -11,6 +11,7 @@ pos = nx.circular_layout(G) # determina come vengono disposti i nodi
 
 def animate(frame):
     fig.clear()
+
     SSA_full(G)
 
     sane_nodes = []
@@ -37,7 +38,8 @@ def animate(frame):
     nx.draw_networkx_nodes(G, pos, nodelist=diagnosed_nodes, node_color="brown")
     nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
 
-    plt.axis([-1.5,1.5,-1.5,1.5]) #margini di matplotlib
+    plt.axis([-1.2,1.2,-1.2,1.2]) #margini di matplotlib
+    plt.tight_layout()
 
 ani = animation.FuncAnimation(fig, animate, interval=200, frames=360)
 plt.show()

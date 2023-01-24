@@ -8,7 +8,7 @@ time_start = time.time()
 
 while t < tf:
     t += SSA_full(G)
-    print(cnt,t)
+    #print(cnt,t)
     cnt += 1
 time_end = time.time()
 

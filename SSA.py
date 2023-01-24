@@ -22,7 +22,7 @@ def SSA_full(G):
             if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
                 r0 += ass_propensity
-                propensities.append(((i,j),ass_propensity,"contact",True))#True per indicare che reazione crea un edge
+                propensities.append(((i,j),ass_propensity,"new_contact"))
 
     #computa le propensities che rompono edges
     for i in range(len(dis_rates)):
@@ -30,7 +30,7 @@ def SSA_full(G):
             if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0 += dis_propensity
-                propensities.append(((i,j),dis_propensity,"contact",False))#False per indicare che reazione rompe un edge
+                propensities.append(((i,j),dis_propensity,"break_contact"))
 
     #computa propensities I+S e D+S
     for edge in G.edges():
@@ -77,11 +77,15 @@ def SSA_full(G):
     #print(tau)
 
     # aggiorniamo il graph
-    if propensities[R_index][2] == "contact":
-        if propensities[R_index][3] == True:
-            G.add_edge(propensities[R_index][0][0],propensities[R_index][0][1])
-        else:
-            G.remove_edge(propensities[R_index][0][0],propensities[R_index][0][1])
+    if propensities[R_index][2] == "new_contact":
+        n1 = propensities[R_index][0][0]
+        n2 = propensities[R_index][0][1]
+        G.add_edge(n1,n2)
+
+    elif propensities[R_index][2] == "break_contact":
+        n1 = propensities[R_index][0][0]
+        n2 = propensities[R_index][0][1]
+        G.remove_edge(n1,n2)
 
     elif propensities[R_index][2] == "spread":
         n1 = propensities[R_index][0][0]
