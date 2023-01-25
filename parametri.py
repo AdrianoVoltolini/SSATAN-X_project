@@ -1,8 +1,8 @@
 tf = 5
-n_cores = 4
+n_graphs = 10
 
-num_nodes = 10
-num_edges = 20 # WARNING: non mettere più di N(N-1)/2 edges!
+num_nodes = 50
+num_edges = 180 # WARNING: non mettere più di N(N-1)/2 edges!
 
 #frazioni della popolazione iniziale
 t0_infetti = 0.2 
