@@ -2,8 +2,10 @@ from matplotlib import pyplot as plt, animation
 import networkx as nx
 #import ffmpeg
 
-from ContactNetwork import G
+from ContactNetwork import graph_creator
 from SSA import SSA_full
+
+G = graph_creator()
 
 fig = plt.figure()
 

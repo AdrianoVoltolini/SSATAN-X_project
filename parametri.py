@@ -18,7 +18,7 @@ w_dead = 0
 
 #parametri dell'epidemic dynamics
 gamma = 0.16 #infezione, loro hanno usato 0.04
-w_gamma = 0.5
+w_gamma = 0.5 #penalità per essere diagnosticato
 delta = 0.5 #diagnosi
 beta = 0.08 # morte
 
