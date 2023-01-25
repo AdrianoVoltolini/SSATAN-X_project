@@ -4,8 +4,9 @@ from parametri import num_nodes, num_edges, t0_sani, t0_infetti, t0_diagnosed, t
 
 #Crea graph iniziale
 
-def graph_creator():
+def graph_creator(name="G"):
     G = nx.Graph()
+    G.name = name
 
     # 0:Sano, 1:Infetto, 2:Diagnosticato, 3:Morto
     status_list = [0]*round(num_nodes*t0_sani) + [1]*round(num_nodes*t0_infetti) + [2]*round(num_nodes*t0_diagnosed) + [3]*round(num_nodes*t0_morti)
@@ -30,6 +31,6 @@ def graph_creator():
                 if i not in diagnosed_or_dead and j not in diagnosed_or_dead:
                     edges.append((i,j))
 
-    G.add_edges_from(random.choices(edges,k=num_edges)) # sceglie edges a caso tra quelli possibili
+    G.add_edges_from(random.sample(edges,k=num_edges)) # sceglie edges a caso tra quelli possibili
 
     return G

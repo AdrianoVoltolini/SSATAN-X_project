@@ -43,7 +43,7 @@ def animate(frame):
     plt.axis([-1.2,1.2,-1.2,1.2]) #margini di matplotlib
     plt.tight_layout()
 
-ani = animation.FuncAnimation(fig, animate, interval=200, frames=360)
+ani = animation.FuncAnimation(fig, animate, interval=100, frames=360)
 plt.show()
 
 # per salvare il video
