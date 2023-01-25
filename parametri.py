@@ -1,5 +1,5 @@
-t = 0
 tf = 5
+n_cores = 4
 
 num_nodes = 10
 num_edges = 20 # WARNING: non mettere più di N(N-1)/2 edges!

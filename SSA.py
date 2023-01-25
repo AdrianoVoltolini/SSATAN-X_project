@@ -55,8 +55,6 @@ def SSA_full(G):
             a0 += beta
             propensities.append((i,beta,"death"))
 
-
-
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
     r2 = np.random.uniform(0,1)
