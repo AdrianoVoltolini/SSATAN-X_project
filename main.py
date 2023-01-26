@@ -1,5 +1,6 @@
 from ContactNetwork import graph_creator
 from SSA import SSA_full
+from Tau_Leaping import tau_leap
 from parametri import tf, n_graphs
 import time
 from multiprocessing import Pool
@@ -14,12 +15,13 @@ def graph_elaborator(G):
     cnt = 0
 
     while t0 < tf:
-        t0 += SSA_full(G) # SSA_full ritorna tau
+        t0 += tau_leap(G,0) # ritorna tau
+        # t0 += SSA_full(G)
         cnt += 1
-        if cnt % 8008 == 0: # per controllare che stia ancora lavorando
+        if cnt % 2 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
             print(f"After {time_current-time_start:.0f} seconds, computation of graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
-
+    
     time_end = time.perf_counter()
 
     print(f"It took me {time_end-time_start:.2f} seconds and {cnt} steps to finish graph {G.name}")

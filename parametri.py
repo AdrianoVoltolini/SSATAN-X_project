@@ -1,8 +1,8 @@
 tf = 5
-n_graphs = 8
+n_graphs = 4
 
-num_nodes = 100 
-num_edges = 740 # WARNING: non mettere più di N(N-1)/2 edges!
+num_nodes = 200 
+num_edges = 3000 # WARNING: non mettere più di N(N-1)/2 edges!
 
 #frazioni della popolazione iniziale
 t0_infetti = 0.1 
@@ -27,4 +27,9 @@ ass_range = (0.5,2.5)
 dis_range = (0.4,2.0)
 
 # parametri tau-leaping
+k = 10
 epsilon = 0.03
+alpha = 0.75
+p = 100
+
+
