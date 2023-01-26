@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta, epsilon
 from SSA import SSA_full
-
+import sys
 from ContactNetwork import graph_creator
 
 
@@ -15,8 +15,8 @@ def tau_leap(G,t):
     r0_ass = 0
     r0_dis = 0
 
-    ass_propensities = []
-    dis_propensities = []
+    ass_propensities = np.empty(shape=(1,3),dtype=tuple)
+    dis_propensities = np.empty(shape=(1,3),dtype=tuple)
 
     # per modificare i rate in base allo status del nodo
     contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
@@ -27,7 +27,12 @@ def tau_leap(G,t):
             if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
                 r0_ass += ass_propensity
-                ass_propensities.append(((i,j),ass_propensity,"new_contact"))
+                new_row = np.array(((i,j),ass_propensity,"new_contact"),ndmin=2,dtype=tuple)
+
+                if ass_propensities[0,0] == None:
+                    ass_propensities = new_row
+                else:
+                    ass_propensities = np.concatenate((ass_propensities,new_row),axis=0)
         
     #computa le propensities che rompono edges
     for i in range(len(dis_rates)):
@@ -35,7 +40,12 @@ def tau_leap(G,t):
             if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0_dis += dis_propensity
-                dis_propensities.append(((i,j),dis_propensity,"break_contact"))
+                new_row = np.array(((i,j),dis_propensity,"break_contact"),ndmin=2,dtype=tuple)
+
+                if dis_propensities[0,0] == None:
+                    dis_propensities = new_row
+                else:
+                    dis_propensities = np.concatenate((dis_propensities,new_row),axis=0)
 
     r0_tot = r0_ass + r0_dis
 
@@ -59,6 +69,8 @@ def tau_leap(G,t):
 
     tau = min(tau_temp, tf-t)
 
+    np.set_printoptions(threshold=sys.maxsize)
+
     if tau < 10/r0_tot:
         t_SSA = 0
         print("it's SSA time!")
@@ -66,14 +78,79 @@ def tau_leap(G,t):
         #     t_SSA += SSA_full(G)
         # return t_SSA
     else:
-        ass_reactions = np.random.poisson(r0_ass*tau)
-        dis_reactions = np.random.poisson(r0_dis*tau)
-        print("it's tau-leaping time!",ass_reactions, dis_reactions)
+        n_ass_reactions = np.random.poisson(r0_ass*tau)
+        n_dis_reactions = np.random.poisson(r0_dis*tau)
+        print("it's tau-leaping time!",n_ass_reactions, n_dis_reactions)
+
+        O = [0]*n_ass_reactions + [1]*n_dis_reactions
+        np.random.shuffle(O)
+
+        u = np.random.uniform(size=len(O))
+
+        zeta_ass = ass_propensities[:,1].cumsum()
+        zeta_dis = dis_propensities[:,1].cumsum()
 
         # da implementare: scegli le reazioni ed aggiorna il graph
+        for r in range(len(O)):
+            if O[r] == 1: # rimuovi un edge
+
+                u_r0_dis = u[r]*r0_dis
+                R_index_dis = 0
+
+                #find first y such as:
+                for i in range(len(zeta_dis)):
+                    R_index_dis = i
+                    if zeta_dis[i] >= u_r0_dis:
+                        break
+                
+                #print("chosen breaking reaction:",dis_propensities[R_index_dis])
+
+                #rimuovi dal graph
+                n1 = dis_propensities[R_index_dis][0][0]
+                n2 = dis_propensities[R_index_dis][0][1]
+                G.remove_edge(n1,n2)
+
+                #aggiorna i vari array
+                zeta_dis = np.delete(zeta_dis,R_index_dis)
+                dis_propensities = np.delete(dis_propensities,R_index_dis,0)
+                ass_propensity = ((ass_rates[n1]*contact_diz[statuses[n1]])*(ass_rates[n2]*contact_diz[statuses[n2]]))+zeta_ass[-1]
+                zeta_ass = np.append(zeta_ass, ass_propensity)
+                new_row = np.array(((n1,n2),ass_propensity,"new_contact"),ndmin=2,dtype=tuple)
+                ass_propensities = np.concatenate((ass_propensities,new_row),axis=0)
+
+            else: #aggiungi un edge
+                
+                u_r0_ass = u[r]*r0_ass
+                R_index_ass = 0
+
+                #find first y such as:
+                for i in range(len(zeta_ass)):
+                    R_index_ass = i
+                    if zeta_ass[i] >= u_r0_ass:
+                        break
+                
+                #print("chosen creating reaction:",ass_propensities[R_index_ass])
+
+                #aggiungi al graph
+                n1 = ass_propensities[R_index_ass][0][0]
+                n2 = ass_propensities[R_index_ass][0][1]
+                G.add_edge(n1,n2)
+
+                #aggiorna i vari array
+                zeta_ass = np.delete(zeta_ass,R_index_ass)
+                ass_propensities =np.delete(ass_propensities,R_index_ass,0)
+                dis_propensity = (dis_rates[n1]*dis_rates[n2])+zeta_ass[-1]
+                zeta_dis = np.append(zeta_dis,dis_propensity)
+                new_row = np.array(((n1,n2),dis_propensity,"break_contact"),ndmin=2,dtype=tuple)
+                dis_propensities = np.concatenate((dis_propensities,new_row),axis=0)
+    
+
+        print(r0_ass)
+
         # se nuovo graph non rispetta le condizioni:
         # -> rejecta il nuovo graph e diminuisci tau 
         # ritorna graph e tau
+
 
         
     
