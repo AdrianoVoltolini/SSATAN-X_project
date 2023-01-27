@@ -120,6 +120,3 @@ def SSA_full(G):
 
     #print(G.edges())
     return tau
-
-
-
