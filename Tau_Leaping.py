@@ -1,11 +1,11 @@
 import numpy as np
 import networkx as nx
 from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, epsilon
-from SSA import SSA_full
+from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
 #@profile #mi serve per misurare lentezza del codice
-def tau_leap_contact(G,delta_t):
+def tau_leap_contact(G,delta_t,leap_t):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
@@ -55,7 +55,7 @@ def tau_leap_contact(G,delta_t):
     tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
     # print(tau_a,tau_b,tau_c,tau_d)
     tau_temp = min(tau_a,tau_b,tau_c,tau_d)
-    tau = min(tau_temp, tf-delta_t)
+    tau = min(tau_temp, delta_t-leap_t)
 
     #print(tau, k/r0_tot)
 
@@ -65,9 +65,9 @@ def tau_leap_contact(G,delta_t):
         
         if tau < k/r0_tot:
             t_SSA = 0
-            print("it's SSA time!")
+            # print("it's SSA time!")
             for i in range(p):
-                t_SSA += SSA_full(G)
+                t_SSA += SSA_contact(G)
             return t_SSA
         else:
             n_ass_reactions = np.random.poisson(r0_ass*tau)
@@ -78,7 +78,7 @@ def tau_leap_contact(G,delta_t):
             if E_next < 0 or E_next > E_max:
                 tau = tau*alpha
                 setAcceptedLeap = False
-                print("Trying with a smaller tau")
+                # print("Trying with a smaller tau")
             else:
                 # print("it's tau-leaping time!",n_ass_reactions, n_dis_reactions)
 

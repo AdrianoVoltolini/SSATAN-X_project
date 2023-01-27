@@ -1,6 +1,6 @@
 from ContactNetwork import graph_creator
 from SSA import SSA_full
-from Tau_Leaping import tau_leap_contact
+from SSATANX import SSATANX_full
 from parametri import tf, n_graphs
 import time
 from multiprocessing import Pool
@@ -15,7 +15,7 @@ def graph_elaborator(G):
     cnt = 0
 
     while t0 < tf:
-        t0 += tau_leap_contact(G,0) # ritorna tau
+        t0 += SSATANX_full(G,t0) # ritorna t+dt
         # t0 += SSA_full(G)
         cnt += 1
         if cnt % 5 == 0: # per controllare che stia ancora lavorando
