@@ -18,7 +18,7 @@ def graph_elaborator(G):
         t0 += tau_leap(G,0) # ritorna tau
         # t0 += SSA_full(G)
         cnt += 1
-        if cnt % 2 == 0: # per controllare che stia ancora lavorando
+        if cnt % 5 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
             print(f"After {time_current-time_start:.0f} seconds, computation of graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
     
