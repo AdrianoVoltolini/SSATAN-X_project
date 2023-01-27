@@ -127,5 +127,5 @@ def SSATANX_full(G,t):
     return delta_t
 
 
-G = graph_creator()
-SSATANX_full(G,0)
+# G = graph_creator()
+# SSATANX_full(G,0)
