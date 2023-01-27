@@ -28,7 +28,7 @@ dis_range = (0.4,2.0)
 
 # parametri tau-leaping
 k = 10
-epsilon = 0.03
+epsilon = 0.03 #bisognerebbe fare cross validation per sceglierlo. Determina margine d'errore
 alpha = 0.75
 p = 100
 

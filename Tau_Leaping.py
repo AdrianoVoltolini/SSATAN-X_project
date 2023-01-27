@@ -2,10 +2,10 @@ import numpy as np
 import networkx as nx
 from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, epsilon
 from SSA import SSA_full
-#from ContactNetwork import graph_creator
+from ContactNetwork import graph_creator
 
-#@profile
-def tau_leap(G,delta_t):
+#@profile #mi serve per misurare lentezza del codice
+def tau_leap_contact(G,delta_t):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
@@ -43,24 +43,29 @@ def tau_leap(G,delta_t):
 
     r0_tot = r0_ass + r0_dis
     E = len(G.edges)
+    E_prime = E_max - E
 
     mu = r0_ass - r0_dis
+    mu_prime = r0_dis - r0_ass
     sigma2 = r0_ass + r0_dis
 
-    tau_a = max(epsilon*E,1)/abs(mu)
-    tau_b = (max(epsilon*E,1)**2)/sigma2
-    tau_temp = min(tau_a,tau_b)
+    tau_a = max(epsilon*E,1)/(abs(mu)*2) # nel paper il *2 non c'è, mentre nel libro sì
+    tau_b = (max(epsilon*E,1)**2)/(sigma2*4) # nel paper il *4 non c'è, mentre nel libro sì
+    tau_c = max(epsilon*E_prime,1)/(abs(mu_prime)*2)
+    tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
+    # print(tau_a,tau_b,tau_c,tau_d)
+    tau_temp = min(tau_a,tau_b,tau_c,tau_d)
     tau = min(tau_temp, tf-delta_t)
 
     #print(tau, k/r0_tot)
 
     setAcceptedLeap = False
-    while setAcceptedLeap == False:
+    while setAcceptedLeap == False: # ho deciso di seguire il libro invece che il paper per tau-leaping
         setAcceptedLeap = True
         
         if tau < k/r0_tot:
             t_SSA = 0
-            # print("it's SSA time!")
+            print("it's SSA time!")
             for i in range(p):
                 t_SSA += SSA_full(G)
             return t_SSA
@@ -73,6 +78,7 @@ def tau_leap(G,delta_t):
             if E_next < 0 or E_next > E_max:
                 tau = tau*alpha
                 setAcceptedLeap = False
+                print("Trying with a smaller tau")
             else:
                 # print("it's tau-leaping time!",n_ass_reactions, n_dis_reactions)
 
@@ -80,13 +86,11 @@ def tau_leap(G,delta_t):
                 np.random.shuffle(O)
 
                 u = np.random.uniform(size=len(O))
-                ass_propensities = np.array(ass_propensities,dtype=tuple)
-                dis_propensities = np.array(dis_propensities,dtype=tuple)
+                ass_propensities = np.array(ass_propensities,dtype=tuple) #trasformo perché è più comodo
+                dis_propensities = np.array(dis_propensities,dtype=tuple) #lavorare con np.array
 
                 zeta_ass = ass_propensities[:,1].cumsum()
                 zeta_dis = dis_propensities[:,1].cumsum()
-
-                # array temporanei che vengono buttati se leap è rifiutato
 
                 for r in range(len(O)):
                     if O[r] == 1: # rimuovi un edge
@@ -106,7 +110,6 @@ def tau_leap(G,delta_t):
                         #rimuovi dal graph
                         n1 = dis_propensities[R_index_dis][0][0]
                         n2 = dis_propensities[R_index_dis][0][1]
-
                         G.remove_edge(n1,n2)
 
                         #aggiorna i vari array
@@ -149,5 +152,5 @@ def tau_leap(G,delta_t):
 
 # G = graph_creator()
 # print(len(G.edges))
-# tau_leap(G,0)
+# tau_leap_contact(G,0)
 # print(len(G.edges))
