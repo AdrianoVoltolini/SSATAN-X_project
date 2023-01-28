@@ -1,9 +1,11 @@
 from matplotlib import pyplot as plt, animation
 import networkx as nx
+import numpy as np
 #import ffmpeg
 
 from ContactNetwork import graph_creator
 from SSA import SSA_full
+from SSATANX import SSATANX_full
 
 G = graph_creator()
 
@@ -11,10 +13,14 @@ fig = plt.figure()
 
 pos = nx.circular_layout(G) # determina come vengono disposti i nodi
 
+G.name = str(0)
+
 def animate(frame):
     fig.clear()
 
-    SSA_full(G)
+    t = np.float64(G.name)
+    # G.name = str(t + SSATANX_full(G,t))
+    G.name = str(t + SSA_full(G))
 
     sane_nodes = []
     infected_nodes = []
@@ -31,7 +37,7 @@ def animate(frame):
         else:
             morti_nodes.append(i)
 
-    plt.title(f"SSA Contact and Epidemic Dynamics")
+    plt.title(f"SSA Contact and Epidemic Dynamics. t = {t:.2f}")
 
     nx.draw_networkx_edges(G,pos) # disegna gli edge
 

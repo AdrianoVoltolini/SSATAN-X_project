@@ -4,7 +4,7 @@ from parametri import num_nodes, num_edges, t0_sani, t0_infetti, t0_diagnosed, t
 
 #Crea graph iniziale
 
-def graph_creator(name="G"):
+def graph_creator(name="0"):
     G = nx.Graph()
     G.name = name
 

@@ -1,6 +1,6 @@
 import numpy as np
 import networkx as nx
-from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, epsilon
+from parametri import num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, epsilon
 from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
