@@ -8,6 +8,8 @@ def SSA_full(G):
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
     statuses = list(nx.get_node_attributes(G,"status").values())
+
+    G_edges = set(G.edges())
     
     r0 = 0 # contact dynamics
     a0 = 0 # epidemic dynamics
@@ -22,19 +24,17 @@ def SSA_full(G):
 
         #computa propensities I -> D, I -> M, D -> M
         if statuses[i] == 1:
-            a0 += delta
-            propensities.append((i,delta,"diagnosis"))
+            a0 += (delta + beta)
+            propensities.extend([(i,delta,"diagnosis"),(i,beta,"death")])
 
-            a0 += beta
-            propensities.append((i,beta,"death"))
-        elif statuses[1] == 2:
+        elif statuses[i] == 2:
             a0 += beta
             propensities.append((i,beta,"death"))
 
         #computa le propensities che riguardano gli edges
         for j in range(i+1,len(ass_rates)):
 
-            if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
+            if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0 += dis_propensity
                 propensities.append(((i,j),dis_propensity,"break_contact"))
@@ -49,9 +49,11 @@ def SSA_full(G):
                     a0 += gamma*w_gamma
                     propensities.append(((i,j),gamma*w_gamma,"spread"))
             else:
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0 += ass_propensity
-                propensities.append(((i,j),ass_propensity,"new_contact"))
+                if statuses[i] != 3 and statuses[j] !=3: #evita di calcolare propensities dei morti
+                    ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                    r0 += ass_propensity
+                    propensities.append(((i,j),ass_propensity,"new_contact"))
+                pass
         
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
@@ -127,6 +129,8 @@ def SSA_contact(G):
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
     statuses = list(nx.get_node_attributes(G,"status").values())
 
+    G_edges = set(G.edges())
+
     r0 = 0 # contact dynamics
 
     propensities = []
@@ -137,14 +141,16 @@ def SSA_contact(G):
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
-            if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
+            if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0 += dis_propensity
                 propensities.append(((i,j),dis_propensity,"break_contact"))
             else:
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0 += ass_propensity
-                propensities.append(((i,j),ass_propensity,"new_contact"))
+                if statuses[i] != 3 and statuses[j] !=3: #evita di calcolare propensities dei morti
+                    ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                    r0 += ass_propensity
+                    propensities.append(((i,j),ass_propensity,"new_contact"))
+                pass
 
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
@@ -152,13 +158,17 @@ def SSA_contact(G):
 
     r0_r1 = r0*r1
     R_index = 0
+
     # Trova la prossima reazione
-    for i in range(len(propensities)):
-        #print(f"calculating {r0a0_r1}-{propensities[i][1]}")
-        r0_r1 -= propensities[i][1]
-        R_index = i
-        if r0_r1 <= 0:
+    propensities = np.array(propensities,dtype=tuple)
+
+    zeta = propensities[:,1].cumsum()
+
+    # Trova la prossima reazione
+    for i in zeta:
+        if i  >= r0_r1:
             break
+        R_index += 1
     # print(propensities[R_index])
 
     # computa tau

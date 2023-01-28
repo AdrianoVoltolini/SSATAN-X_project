@@ -11,6 +11,8 @@ def tau_leap_contact(G,delta_t,leap_t):
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
     statuses = list(nx.get_node_attributes(G,"status").values())
 
+    G_edges = set(G.edges())
+
     # per modificare i rate in base allo status del nodo
     contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
 
@@ -26,14 +28,16 @@ def tau_leap_contact(G,delta_t,leap_t):
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
-            if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
+            if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0_dis += dis_propensity
                 dis_propensities.append(((i,j),dis_propensity,"break_contact"))
             else:
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0_ass += ass_propensity
-                ass_propensities.append(((i,j),ass_propensity,"new_contact"))
+                if statuses[i] != 3 and statuses[j] !=3: #evita di calcolare propensities dei morti
+                    ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                    r0_ass += ass_propensity
+                    ass_propensities.append(((i,j),ass_propensity,"new_contact"))
+                pass
 
     r0_tot = r0_ass + r0_dis
     E = len(G.edges)

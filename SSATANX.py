@@ -116,7 +116,7 @@ def SSATANX_full(G):
             n1_edges = list(G.edges(n1))
             G.remove_edges_from(n1_edges)
     else:
-        # print("thinning")  
+        #print("thinning")  
         pass
     
     return delta_t
