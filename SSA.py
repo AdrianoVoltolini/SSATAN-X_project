@@ -8,7 +8,7 @@ def SSA_full(G):
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
     statuses = list(nx.get_node_attributes(G,"status").values())
-
+    
     r0 = 0 # contact dynamics
     a0 = 0 # epidemic dynamics
 
@@ -17,35 +17,10 @@ def SSA_full(G):
     # per modificare i rate in base allo status del nodo
     contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
     
-    #computa le propensities che creano nuovi edges
+    #computa le propensities
     for i in range(len(ass_rates)):
-        for j in range(i+1,len(ass_rates)):
-            if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0 += ass_propensity
-                propensities.append(((i,j),ass_propensity,"new_contact"))
 
-    #computa le propensities che rompono edges
-    for i in range(len(dis_rates)):
-        for j in range(i+1,len(dis_rates)):
-            if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
-                r0 += dis_propensity
-                propensities.append(((i,j),dis_propensity,"break_contact"))
-
-    #computa propensities I+S e D+S
-    for edge in G.edges():
-        n1 = statuses[edge[0]]
-        n2 = statuses[edge[1]]
-        if (n1,n2) == (0,1) or (n1,n2) == (1,0): #caso S+I o I+S
-            a0 += gamma
-            propensities.append((edge,gamma,"spread"))
-        elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
-            a0 += gamma*w_gamma
-            propensities.append((edge,gamma*w_gamma,"spread"))
-        
-    #computa propensities I -> D, I -> M, D -> M
-    for i in range(len(statuses)):
+        #computa propensities I -> D, I -> M, D -> M
         if statuses[i] == 1:
             a0 += delta
             propensities.append((i,delta,"diagnosis"))
@@ -56,6 +31,28 @@ def SSA_full(G):
             a0 += beta
             propensities.append((i,beta,"death"))
 
+        #computa le propensities che riguardano gli edges
+        for j in range(i+1,len(ass_rates)):
+
+            if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
+                dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
+                r0 += dis_propensity
+                propensities.append(((i,j),dis_propensity,"break_contact"))
+
+                #computa propensities S+I e S+D
+                n1 = statuses[i]
+                n2 = statuses[j]
+                if (n1,n2) == (0,1) or (n1,n2) == (1,0): #caso S+I o I+S
+                    a0 += gamma
+                    propensities.append(((i,j),gamma,"spread"))
+                elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
+                    a0 += gamma*w_gamma
+                    propensities.append(((i,j),gamma*w_gamma,"spread"))
+            else:
+                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                r0 += ass_propensity
+                propensities.append(((i,j),ass_propensity,"new_contact"))
+        
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
     r2 = np.random.uniform(0,1)
@@ -140,18 +137,14 @@ def SSA_contact(G):
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
-            if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0 += ass_propensity
-                propensities.append(((i,j),ass_propensity,"new_contact"))
-
-    #computa le propensities che rompono edges
-    for i in range(len(dis_rates)):
-        for j in range(i+1,len(dis_rates)):
             if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0 += dis_propensity
                 propensities.append(((i,j),dis_propensity,"break_contact"))
+            else:
+                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                r0 += ass_propensity
+                propensities.append(((i,j),ass_propensity,"new_contact"))
 
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
@@ -186,5 +179,7 @@ def SSA_contact(G):
     #print(G.edges())
     return tau
 
-# G = graph_creator()
-# SSA_full(G)
+if __name__ == '__main__':
+    G = graph_creator()
+    SSA_full(G)
+    # SSA_contact(G)

@@ -26,20 +26,14 @@ def tau_leap_contact(G,delta_t,leap_t):
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
-            if (i,j) not in G.edges(): # WARNING: gli edges di G NON sono in ordine!
-                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                r0_ass += ass_propensity
-                new_row = ((i,j),ass_propensity,"new_contact")
-                ass_propensities.append(new_row)
-        
-    #computa le propensities che rompono edges
-    for i in range(len(dis_rates)):
-        for j in range(i+1,len(dis_rates)):
             if (i,j) in G.edges(): # WARNING: gli edges di G NON sono in ordine!
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0_dis += dis_propensity
-                new_row = ((i,j),dis_propensity,"break_contact")
-                dis_propensities.append(new_row)
+                dis_propensities.append(((i,j),dis_propensity,"break_contact"))
+            else:
+                ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                r0_ass += ass_propensity
+                ass_propensities.append(((i,j),ass_propensity,"new_contact"))
 
     r0_tot = r0_ass + r0_dis
     E = len(G.edges)
@@ -150,7 +144,6 @@ def tau_leap_contact(G,delta_t,leap_t):
 
     return tau
 
-# G = graph_creator()
-# print(len(G.edges))
-# tau_leap_contact(G,0)
-# print(len(G.edges))
+# if __name__ == '__main__':
+#     G = graph_creator()
+#     tau_leap_contact(G,5,0)

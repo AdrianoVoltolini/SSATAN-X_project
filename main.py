@@ -16,8 +16,8 @@ def graph_elaborator(G):
     cnt = 0
 
     while t0 < tf:
-        t0 += SSATANX_full(G) # ritorna delta_t
-        # t0 += SSA_full(G)
+        # t0 += SSATANX_full(G) # ritorna delta_t
+        t0 += SSA_full(G)
         cnt += 1
         if cnt % 100 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  

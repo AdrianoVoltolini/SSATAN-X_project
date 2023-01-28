@@ -4,12 +4,16 @@ from parametri import gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_contact
 
-#@profile #mi serve per misurare lentezza del codice
+# @profile #mi serve per misurare lentezza del codice
 def SSATANX_full(G):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
     statuses = list(nx.get_node_attributes(G,"status").values())
+
+    a0 = 0
+
+    epidemic_propensities = []
 
     #roba sotto serve per calcolare upper bound
     n_edges_sus = 0
@@ -21,17 +25,26 @@ def SSATANX_full(G):
 
         if statuses[i] == 0:
             n_edges_sus += len(G.edges(i))
+
         elif statuses[i] == 1:
             n_edges_inf_diag += len(G.edges(i))
             n_infected += 1
+
+            #epidemic propensities 
+            a0 += (delta + beta)
+            epidemic_propensities.extend([(i,delta,"diagnosis"),(i,beta,"death")])
+
         elif statuses[i] == 2:
             n_edges_inf_diag += len(G.edges(i))
             n_diagnosed += 1
+
+            # epidemic propensities
+            a0 += beta
+            epidemic_propensities.append((i,beta,"death"))
         
     Bs = min(n_edges_inf_diag,n_edges_sus)*gamma # è una stima che hanno fatto nei supplementary materials
     Bd = n_infected*delta
     Bo = (n_infected+n_diagnosed)*beta
-
 
     BTl = Bs + Bd + Bo #upper bound delle epidemic_propensities
 
@@ -42,9 +55,6 @@ def SSATANX_full(G):
     t_leap = 0
     while t_leap < delta_t:
         t_leap += tau_leap_contact(G,delta_t,t_leap)
-    
-    epidemic_propensities = []
-    a0 = 0
 
     #computa epidemic_propensities I+S e D+S
     for edge in G.edges():
@@ -56,19 +66,7 @@ def SSATANX_full(G):
         elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
             a0 += gamma*w_gamma
             epidemic_propensities.append((edge,gamma*w_gamma,"spread"))
-        
-    #computa epidemic_propensities I -> D, I -> M, D -> M
-    for i in range(len(statuses)):
-        if statuses[i] == 1:
-            a0 += delta
-            epidemic_propensities.append((i,delta,"diagnosis"))
 
-            a0 += beta
-            epidemic_propensities.append((i,beta,"death"))
-        elif statuses[1] == 2:
-            a0 += beta
-            epidemic_propensities.append((i,beta,"death"))
-    
     u = np.random.uniform()
 
     if a0 > BTl*u:
@@ -123,6 +121,6 @@ def SSATANX_full(G):
     
     return delta_t
 
-
-G = graph_creator()
-SSATANX_full(G)
+if __name__ == '__main__':
+    G = graph_creator()
+    SSATANX_full(G)

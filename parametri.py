@@ -1,8 +1,8 @@
 tf = 5
 n_graphs = 4
 
-num_nodes = 100 
-num_edges = 740 # WARNING: non mettere più di N(N-1)/2 edges!
+num_nodes = 200 
+num_edges = 3000 # WARNING: non mettere più di N(N-1)/2 edges!
 
 #frazioni della popolazione iniziale
 t0_infetti = 0.1 
@@ -17,7 +17,7 @@ w_diagnosed = 1/3
 w_dead = 0
 
 #parametri dell'epidemic dynamics
-gamma = 0.04 #infezione
+gamma = 0.16 #infezione
 w_gamma = 0.5 #penalità per essere diagnosticato
 delta = 0.5 #diagnosi
 beta = 0.08 # morte
