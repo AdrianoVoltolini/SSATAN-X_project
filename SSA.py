@@ -21,40 +21,36 @@ def SSA_full(G):
     
     #computa le propensities
     for i in range(len(ass_rates)):
+        if statuses[i] != 3: # evita di calcolare propensities dei morti
+            #computa propensities I -> D, I -> M, D -> M
+            if statuses[i] == 1:
+                a0 += (delta + beta)
+                propensities.extend([(i,delta,"diagnosis"),(i,beta,"death")])
+            elif statuses[i] == 2:
+                a0 += beta
+                propensities.append((i,beta,"death"))
 
-        #computa propensities I -> D, I -> M, D -> M
-        if statuses[i] == 1:
-            a0 += (delta + beta)
-            propensities.extend([(i,delta,"diagnosis"),(i,beta,"death")])
-
-        elif statuses[i] == 2:
-            a0 += beta
-            propensities.append((i,beta,"death"))
-
-        #computa le propensities che riguardano gli edges
-        for j in range(i+1,len(ass_rates)):
-
-            if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
-                G_edges.remove((i,j))
-                dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
-                r0 += dis_propensity
-                propensities.append(((i,j),dis_propensity,"break_contact"))
-
-                #computa propensities S+I e S+D
-                n1 = statuses[i]
-                n2 = statuses[j]
-                if (n1,n2) == (0,1) or (n1,n2) == (1,0): #caso S+I o I+S
-                    a0 += gamma
-                    propensities.append(((i,j),gamma,"spread"))
-                elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
-                    a0 += gamma*w_gamma
-                    propensities.append(((i,j),gamma*w_gamma,"spread"))
-            else:
-                if statuses[i] != 3 and statuses[j] !=3: #evita di calcolare propensities dei morti
-                    ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                    r0 += ass_propensity
-                    propensities.append(((i,j),ass_propensity,"new_contact"))
-                pass
+            #computa le propensities che riguardano gli edges
+            for j in range(i+1,len(ass_rates)):
+                if statuses[j] != 3: # evita di calcolare propensities dei morti
+                    if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
+                        G_edges.remove((i,j))
+                        dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
+                        r0 += dis_propensity
+                        propensities.append(((i,j),dis_propensity,"break_contact"))
+                        #computa propensities S+I e S+D
+                        n1 = statuses[i]
+                        n2 = statuses[j]
+                        if (n1,n2) == (0,1) or (n1,n2) == (1,0): #caso S+I o I+S
+                            a0 += gamma
+                            propensities.append(((i,j),gamma,"spread"))
+                        elif (n1,n2) == (0,2) or (n1,n2) == (2,0): #caso S+D o D+S
+                            a0 += gamma*w_gamma
+                            propensities.append(((i,j),gamma*w_gamma,"spread"))
+                    else:
+                        ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                        r0 += ass_propensity
+                        propensities.append(((i,j),ass_propensity,"new_contact"))
         
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
@@ -157,18 +153,18 @@ def SSA_contact(G):
     
     #computa le propensities che creano nuovi edges
     for i in range(len(ass_rates)):
-        for j in range(i+1,len(ass_rates)):
-            if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
-                G_edges.remove((i,j))
-                dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
-                r0 += dis_propensity
-                propensities.append(((i,j),dis_propensity,"break_contact"))
-            else:
-                if statuses[i] != 3 and statuses[j] !=3: #evita di calcolare propensities dei morti
-                    ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
-                    r0 += ass_propensity
-                    propensities.append(((i,j),ass_propensity,"new_contact"))
-                pass
+        if statuses[i] != 3: # evita di calcolare propensities dei morti
+            for j in range(i+1,len(ass_rates)):
+                if statuses[j] != 3: # evita di calcolare propensities dei morti
+                    if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
+                        G_edges.remove((i,j))
+                        dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
+                        r0 += dis_propensity
+                        propensities.append(((i,j),dis_propensity,"break_contact"))
+                    else:
+                        ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
+                        r0 += ass_propensity
+                        propensities.append(((i,j),ass_propensity,"new_contact"))
 
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
