@@ -1,12 +1,11 @@
 from matplotlib import pyplot as plt
-import networkx as nx
-import numpy as np
+import pandas as pd
 
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
 from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti
-import pandas as pd
+
 
 fig, (ax1, ax2) = plt.subplots(2,1,constrained_layout=True)
 
@@ -27,7 +26,7 @@ while t0_SSA < tf:
 
 data_SSA = pd.DataFrame(data_SSA)
 
-ax1.set_title("SSA (100 nodes)")
+ax1.set_title(f"SSA ({num_nodes} nodes)")
 
 ax1.plot(data_SSA.iloc[0,:],c="blue")
 ax1.plot(data_SSA.iloc[1,:],c="red")
@@ -54,7 +53,7 @@ while t0_SSATANX < tf:
 
 data_SSATANX = pd.DataFrame(data_SSATANX)
 
-ax2.set_title("SSATANX (100 nodes)")
+ax2.set_title(f"SSATANX ({num_nodes} nodes)")
 
 ax2.plot(data_SSATANX.iloc[0,:],c="blue")
 ax2.plot(data_SSATANX.iloc[1,:],c="red")
