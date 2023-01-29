@@ -119,8 +119,25 @@ def SSATANX_full(G):
         #print("thinning")  
         pass
     
-    return delta_t
+    new_statuses = list(nx.get_node_attributes(G,"status").values())
+
+    n_sus = 0
+    n_inf = 0
+    n_dia = 0
+    n_mor = 0
+
+    for s in new_statuses:
+        if s == 0:
+            n_sus += 1
+        elif s == 1:
+            n_inf += 1
+        elif s == 2:
+            n_dia += 1
+        else:
+            n_mor += 1
+    
+    return (delta_t,n_sus,n_inf,n_dia,n_mor)
 
 if __name__ == '__main__':
     G = graph_creator()
-    SSATANX_full(G)
+    print(SSATANX_full(G))

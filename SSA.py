@@ -121,8 +121,24 @@ def SSA_full(G):
         n1_edges = list(G.edges(n1))
         G.remove_edges_from(n1_edges)
 
-    #print(G.edges())
-    return tau
+    new_statuses = list(nx.get_node_attributes(G,"status").values())
+
+    n_sus = 0
+    n_inf = 0
+    n_dia = 0
+    n_mor = 0
+
+    for s in new_statuses:
+        if s == 0:
+            n_sus += 1
+        elif s == 1:
+            n_inf += 1
+        elif s == 2:
+            n_dia += 1
+        else:
+            n_mor += 1
+    
+    return (tau,n_sus,n_inf,n_dia,n_mor)
 
 def SSA_contact(G):
 
@@ -188,10 +204,9 @@ def SSA_contact(G):
         n2 = propensities[R_index][0][1]
         G.remove_edge(n1,n2)
 
-    #print(G.edges())
     return tau
 
 if __name__ == '__main__':
     G = graph_creator()
-    SSA_full(G)
+    print(SSA_full(G))
     # SSA_contact(G)

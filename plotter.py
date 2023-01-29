@@ -19,8 +19,8 @@ def animate(frame):
     fig.clear()
 
     t = np.float64(G.name)
-    # G.name = str(t + SSATANX_full(G,t))
-    G.name = str(t + SSA_full(G))
+    # G.name = str(t + SSATANX_full(G)[0])
+    G.name = str(t + SSA_full(G)[0])
 
     sane_nodes = []
     infected_nodes = []

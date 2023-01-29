@@ -16,8 +16,8 @@ def graph_elaborator(G):
     cnt = 0
 
     while t0 < tf:
-        t0 += SSATANX_full(G) # ritorna delta_t
-        # t0 += SSA_full(G)
+        # t0 += SSATANX_full(G)[0] # ritorna delta_t
+        t0 += SSA_full(G)[0]
         cnt += 1
         if cnt % 10 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
@@ -34,4 +34,4 @@ def graph_elaborator(G):
 # per fare multiprocessing:
 if __name__ == '__main__':
     results = np.array(Pool().map(graph_elaborator,graph_list),dtype=tuple)
-    print(f"Average time: {results[:,0].mean():.2f} seconds, average number of steps: {results[:,1].mean():.2f}")
+    # print(f"Average time: {results[:,0].mean():.2f} seconds, average number of steps: {results[:,1].mean():.2f}")
