@@ -29,6 +29,7 @@ def tau_leap_contact(G,delta_t,leap_t):
     for i in range(len(ass_rates)):
         for j in range(i+1,len(ass_rates)):
             if (i,j) in G_edges: # WARNING: gli edges di G NON sono in ordine!
+                G_edges.remove((i,j))
                 dis_propensity = dis_rates[i]*dis_rates[j] # le propensities sono (lambda_j * lambda_k)
                 r0_dis += dis_propensity
                 dis_propensities.append(((i,j),dis_propensity,"break_contact"))
