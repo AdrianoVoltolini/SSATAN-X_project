@@ -149,6 +149,6 @@ def tau_leap_contact(G,delta_t,leap_t):
 
     return tau
 
-# if __name__ == '__main__':
-#     G = graph_creator()
-#     tau_leap_contact(G,5,0)
+if __name__ == '__main__':
+    G = graph_creator()
+    tau_leap_contact(G,5,0)
