@@ -48,13 +48,15 @@ def SSATANX_full(G):
 
     BTl = Bs + Bd + Bo #upper bound delle epidemic_propensities
 
-    delta_t = np.random.exponential(1/BTl)
+    r2 = np.random.uniform(0,1)
 
+    # time_step = np.log(1/r2)/BTl
+    time_step = np.random.exponential(1/BTl)
 
     #print("it's big brain time")
     t_leap = 0
-    while t_leap < delta_t:
-        t_leap += tau_leap_contact(G,delta_t,t_leap)
+    while t_leap < time_step:
+        t_leap += tau_leap_contact(G,time_step-t_leap)
 
     #computa epidemic_propensities I+S e D+S
     for edge in G.edges():
@@ -78,10 +80,7 @@ def SSATANX_full(G):
         zeta = epidemic_propensities[:,1].cumsum()
 
         # Trova la prossima reazione
-        for i in zeta:
-            if i  >= BTl*u:
-                break
-            R_index += 1
+        R_index = np.searchsorted(zeta,BTl*u)
 
         if epidemic_propensities[R_index][2] == "spread":
             n1 = epidemic_propensities[R_index][0][0]
@@ -116,7 +115,7 @@ def SSATANX_full(G):
             n1_edges = list(G.edges(n1))
             G.remove_edges_from(n1_edges)
     else:
-        #print("thinning")  
+        # print("thinning")  
         pass
     
     new_statuses = list(nx.get_node_attributes(G,"status").values())
@@ -136,8 +135,9 @@ def SSATANX_full(G):
         else:
             n_mor += 1
     
-    return (delta_t,n_sus,n_inf,n_dia,n_mor)
+    return (time_step,n_sus,n_inf,n_dia,n_mor)
 
 if __name__ == '__main__':
     G = graph_creator()
-    print(SSATANX_full(G))
+    for i in range(10):
+        SSATANX_full(G)

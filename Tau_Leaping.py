@@ -1,11 +1,12 @@
 import numpy as np
+from collections import deque
 import networkx as nx
 from parametri import num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, epsilon
 from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
-#@profile #mi serve per misurare lentezza del codice
-def tau_leap_contact(G,delta_t,leap_t):
+# @profile #mi serve per misurare lentezza del codice
+def tau_leap_contact(G,delta_t):
 
     ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
     dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
@@ -54,7 +55,9 @@ def tau_leap_contact(G,delta_t,leap_t):
     tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
     # print(tau_a,tau_b,tau_c,tau_d)
     tau_temp = min(tau_a,tau_b,tau_c,tau_d)
-    tau = min(tau_temp, delta_t-leap_t)
+
+    # print(tau_temp,delta_t)
+    tau = min(tau_temp, delta_t)
 
     #print(tau, k/r0_tot)
 
@@ -74,6 +77,8 @@ def tau_leap_contact(G,delta_t,leap_t):
 
             E_next = E + n_ass_reactions - n_dis_reactions
 
+            # print(E_next, E_max)
+
             if E_next < 0 or E_next > E_max:
                 tau = tau*alpha
                 setAcceptedLeap = False
@@ -85,24 +90,18 @@ def tau_leap_contact(G,delta_t,leap_t):
                 np.random.shuffle(O)
 
                 u = np.random.uniform(size=len(O))
-                ass_propensities = np.array(ass_propensities,dtype=tuple) #trasformo perché è più comodo
-                dis_propensities = np.array(dis_propensities,dtype=tuple) #lavorare con np.array
 
-                zeta_ass = ass_propensities[:,1].cumsum()
-                zeta_dis = dis_propensities[:,1].cumsum()
+                #cumulative sums delle propensities
+                zeta_ass = list(np.array(ass_propensities,dtype=tuple)[:,1].cumsum())
+                zeta_dis = list(np.array(dis_propensities,dtype=tuple)[:,1].cumsum())
 
                 for r in range(len(O)):
                     if O[r] == 1: # rimuovi un edge
+
                         r0_dis = zeta_dis[-1]
-                        u_r0_dis = u[r]*r0_dis
 
-                        R_index_dis = 0
-
-                        #find first y such as:
-                        for i in zeta_dis:
-                            if i >= u_r0_dis:
-                                break
-                            R_index_dis += 1
+                        #per trovare prossima reazione
+                        R_index_dis = np.searchsorted(zeta_dis,u[r]*r0_dis)
                         
                         #print("chosen breaking reaction:",temp_dis_propensities[R_index_dis])
 
@@ -113,24 +112,19 @@ def tau_leap_contact(G,delta_t,leap_t):
 
                         #aggiorna i vari array
                         ass_propensity = ((ass_rates[n1]*contact_diz[statuses[n1]])*(ass_rates[n2]*contact_diz[statuses[n2]]))+zeta_ass[-1]
-                        zeta_ass = np.append(zeta_ass, ass_propensity)
-                        new_row = np.array(((n1,n2),ass_propensity,"new_contact"),ndmin=2,dtype=tuple)
-                        ass_propensities = np.append(ass_propensities,new_row,axis=0)
-                        zeta_dis = np.delete(zeta_dis,R_index_dis)
-                        dis_propensities = np.delete(dis_propensities,R_index_dis,0)
+                        zeta_ass.append(ass_propensity)
+                        new_row = ((n1,n2),ass_propensity,"new_contact")
+                        ass_propensities.append(new_row)
+                        zeta_dis.remove(zeta_dis[R_index_dis])
+                        dis_propensities.remove(dis_propensities[R_index_dis])
 
 
                     else: #aggiungi un edge
                         r0_ass = zeta_ass[-1]
                         u_r0_ass = u[r]*r0_ass
 
-                        R_index_ass = 0
-
-                        #find first y such as:
-                        for i in zeta_ass:
-                            if i >= u_r0_ass:
-                                break
-                            R_index_ass += 1
+                        #per trovare prossima reazione
+                        R_index_ass = np.searchsorted(zeta_ass,u_r0_ass)
                         
                         #print("chosen creating reaction:",temp_ass_propensities[R_index_ass])
 
@@ -141,14 +135,16 @@ def tau_leap_contact(G,delta_t,leap_t):
 
                         #aggiorna i vari array
                         dis_propensity = (dis_rates[n1]*dis_rates[n2])+zeta_dis[-1]
-                        zeta_dis = np.append(zeta_dis,dis_propensity)
-                        new_row = np.array(((n1,n2),dis_propensity,"break_contact"),ndmin=2,dtype=tuple)
-                        dis_propensities = np.append(dis_propensities,new_row,axis=0)
-                        zeta_ass = np.delete(zeta_ass,R_index_ass)
-                        ass_propensities =np.delete(ass_propensities,R_index_ass,0)
+                        zeta_dis.append(dis_propensity)
+                        new_row = ((n1,n2),dis_propensity,"break_contact")
+                        dis_propensities.append(new_row)
+                        zeta_ass.remove(zeta_ass[R_index_ass])
+                        ass_propensities.remove(ass_propensities[R_index_ass])
 
     return tau
 
 if __name__ == '__main__':
     G = graph_creator()
-    tau_leap_contact(G,5,0)
+    delta = 0
+    while delta < 5:
+        delta += tau_leap_contact(G,delta)

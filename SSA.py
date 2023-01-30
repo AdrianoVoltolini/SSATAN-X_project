@@ -55,23 +55,18 @@ def SSA_full(G):
         
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
-    r2 = np.random.uniform(0,1)
+    # r2 = np.random.uniform(0,1)
 
-    r0a0_r1 = (r0+a0)*r1
-    R_index = 0
-    # Trova la prossima reazione
     propensities = np.array(propensities,dtype=tuple)
 
     zeta = propensities[:,1].cumsum()
 
     # Trova la prossima reazione
-    for i in zeta:
-        if i  >= r0a0_r1:
-            break
-        R_index += 1
+    R_index = np.searchsorted(zeta,(r0+a0)*r1)
 
     # computa tau
-    tau = np.log(1/r2)/(r0+a0)
+    # tau = np.log(1/r2)/(r0+a0)
+    tau = np.random.exponential(1/(r0+a0))
     #print(tau)
 
     # aggiorniamo il graph
@@ -169,25 +164,18 @@ def SSA_contact(G):
 
     # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
     r1 = np.random.uniform(0,1)
-    r2 = np.random.uniform(0,1)
+    # r2 = np.random.uniform(0,1)
 
-    r0_r1 = r0*r1
-    R_index = 0
-
-    # Trova la prossima reazione
-    propensities = np.array(propensities,dtype=tuple)
-
-    zeta = propensities[:,1].cumsum()
+    # cumulative sum delle propensities
+    zeta = np.array(propensities,dtype=tuple)[:,1].cumsum()
 
     # Trova la prossima reazione
-    for i in zeta:
-        if i  >= r0_r1:
-            break
-        R_index += 1
+    R_index = np.searchsorted(zeta,r0*r1)
     # print(propensities[R_index])
 
     # computa tau
-    tau = np.log(1/r2)/r0
+    # tau = np.log(1/r2)/r0
+    tau = np.random.exponential(1/r0)
     #print(tau)
 
     # aggiorniamo il graph
