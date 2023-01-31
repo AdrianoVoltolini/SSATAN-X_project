@@ -1,14 +1,14 @@
 import numpy as np
 import networkx as nx
-from parametri import w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
+from parametri import num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
 def SSA_full(G):
 
-    ass_rates = list(nx.get_node_attributes(G,"ass_rate").values()) # questi comandi funzionano correttamente solo se si usa python 3.7+
-    dis_rates = list(nx.get_node_attributes(G,"dis_rate").values())
-    statuses = list(nx.get_node_attributes(G,"status").values())
+    ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
+    dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
+    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
 
     G_edges = set(G.edges())
     

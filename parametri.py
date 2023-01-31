@@ -30,6 +30,9 @@ dis_range = (0.4,2.0)
 k = 10
 epsilon = 0.03 #bisognerebbe fare cross validation per sceglierlo. Determina margine d'errore
 alpha = 0.75
+alpha_star = 0.9
+omega = 0.98
+omega_star = 1.02
 p = 100
 
 
