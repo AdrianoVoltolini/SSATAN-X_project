@@ -35,5 +35,6 @@ def graph_creator(name="0"):
     
     ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
     dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
+    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
 
-    return (G,ass_rates,dis_rates)
+    return (G,ass_rates,dis_rates,statuses)

@@ -9,9 +9,10 @@ from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti
 
 fig, (ax1, ax2) = plt.subplots(2,1,constrained_layout=True)
 
-G, ass_rates, dis_rates = graph_creator()
+G, ass_rates, dis_rates, statuses = graph_creator()
 
 G_SSA = G.copy()
+statuses_SSA = statuses.copy()
 
 t0_status = (round(num_nodes*t0_sani), round(num_nodes*t0_infetti), round(num_nodes*t0_diagnosed), round(num_nodes*t0_morti))
 
@@ -20,9 +21,10 @@ data_SSA = {}
 data_SSA[0] = t0_status
 
 while t0_SSA < tf:
-    output = SSA_full(G_SSA, ass_rates, dis_rates)
+    output = SSA_full(G_SSA, ass_rates, dis_rates, statuses_SSA)
     t0_SSA += output[0]
-    data_SSA[t0_SSA] = output[1:]
+    statuses_SSA = output[-1]
+    data_SSA[t0_SSA] = output[1:-1]
 
 data_SSA = pd.DataFrame(data_SSA)
 
@@ -40,6 +42,7 @@ ax1.set_ylabel("number of nodes")
 ############################################################
 
 G_SSATANX = G.copy()
+statuses_SSATANX = statuses.copy()
 
 t0_SSATANX = 0
 data_SSATANX = {}
@@ -47,9 +50,10 @@ data_SSATANX[0] = t0_status
 
 
 while t0_SSATANX < tf:
-    output = SSATANX_full(G_SSATANX, ass_rates, dis_rates)
+    output = SSATANX_full(G_SSATANX, ass_rates, dis_rates, statuses_SSATANX)
     t0_SSATANX += output[0]
-    data_SSATANX[t0_SSATANX] = output[1:]
+    statuses_SSATANX = output[-1]
+    data_SSATANX[t0_SSATANX] = output[1:-1]
 
 data_SSATANX = pd.DataFrame(data_SSATANX)
 
@@ -67,4 +71,7 @@ ax2.set_ylabel("number of nodes")
 
 plt.show()
 
+#controlla che i morti non diventino zombie
+print(data_SSATANX.iloc[3,:].is_monotonic_increasing)
+print(data_SSA.iloc[3,:].is_monotonic_increasing)
      

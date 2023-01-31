@@ -1,7 +1,7 @@
 import numpy as np
 from collections import deque
 import networkx as nx
-from parametri import num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, alpha_star, epsilon, omega, omega_star
+from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, p, k, alpha, alpha_star, epsilon, omega, omega_star
 from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
@@ -140,7 +140,7 @@ def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
+def tau_leap_new(G, delta_t, ass_rates, dis_rates, statuses):
 
     G_edges = set(G.edges())
 
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     G, ass_rates, dis_rates = graph_creator()
     dt = 0
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
-    while dt < 5:
+    while dt < tf:
         dt += tau_leap_new(G,dt,ass_rates,dis_rates, statuses)
 
 

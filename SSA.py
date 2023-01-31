@@ -4,9 +4,7 @@ from parametri import num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, gamma, 
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def SSA_full(G,ass_rates, dis_rates):
-
-    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
+def SSA_full(G,ass_rates, dis_rates,statuses):
 
     G_edges = set(G.edges())
     
@@ -127,7 +125,7 @@ def SSA_full(G,ass_rates, dis_rates):
         else:
             n_mor += 1
     
-    return (tau,n_sus,n_inf,n_dia,n_mor)
+    return (tau,n_sus,n_inf,n_dia,n_mor, new_statuses)
 
 def SSA_contact(G, ass_rates, dis_rates, statuses):
 

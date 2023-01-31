@@ -6,8 +6,9 @@ import numpy as np
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
+from parametri import num_nodes
 
-G = graph_creator()
+G, ass_rate, dis_rate, old_statuses = graph_creator()
 
 fig = plt.figure()
 
@@ -17,22 +18,26 @@ G.name = str(0)
 
 def animate(frame):
     fig.clear()
-
+    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
     t = np.float64(G.name)
-    # G.name = str(t + SSATANX_full(G)[0])
-    G.name = str(t + SSA_full(G)[0])
+    #output = SSATANX_full(G, ass_rate, dis_rate, statuses)
+    output = SSA_full(G, ass_rate, dis_rate, statuses)
+    
+    new_statuses = output[-1]
+
+    G.name = str(t + output[0])
 
     sane_nodes = []
     infected_nodes = []
     diagnosed_nodes = []
     morti_nodes = []
 
-    for i in G.nodes(): # smista i nodi in base allo status per colorarli dopo 
-        if nx.get_node_attributes(G,"status")[i] == 0:
+    for i in range(num_nodes): # smista i nodi in base allo status per colorarli dopo 
+        if new_statuses[i] == 0:
             sane_nodes.append(i)
-        elif nx.get_node_attributes(G,"status")[i] == 1:
+        elif new_statuses[i] == 1:
             infected_nodes.append(i)
-        elif nx.get_node_attributes(G,"status")[i] == 2:
+        elif new_statuses[i] == 2:
             diagnosed_nodes.append(i)
         else:
             morti_nodes.append(i)

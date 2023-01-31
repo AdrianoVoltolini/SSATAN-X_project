@@ -1,13 +1,11 @@
 import numpy as np
 import networkx as nx
-from parametri import num_nodes, gamma, w_gamma, beta, delta
+from parametri import tf, num_nodes, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new
 
 # @profile #mi serve per misurare lentezza del codice
-def SSATANX_full(G, ass_rates, dis_rates):
-
-    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
+def SSATANX_full(G, ass_rates, dis_rates, statuses):
 
     a0 = 0
 
@@ -131,9 +129,12 @@ def SSATANX_full(G, ass_rates, dis_rates):
         else:
             n_mor += 1
     
-    return (time_step,n_sus,n_inf,n_dia,n_mor)
+    return (time_step,n_sus,n_inf,n_dia,n_mor, new_statuses)
 
 if __name__ == '__main__':
-    G, ass_rates, dis_rates = graph_creator()
-    for i in range(10):
-        print(SSATANX_full(G, ass_rates, dis_rates))
+    G, ass_rates, dis_rates, statuses = graph_creator()
+    t0 = 0
+    while t0 < tf:    
+        output = SSATANX_full(G, ass_rates, dis_rates, statuses)
+        t0 += output[0]
+        statuses = output[-1]
