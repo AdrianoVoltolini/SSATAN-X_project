@@ -1,10 +1,8 @@
 import numpy as np
 import networkx as nx
-from parametri import num_nodes, gamma, w_gamma, beta, delta, w_sano, w_infetto, w_diagnosed, w_dead, epsilon, alpha, alpha_star, omega, omega_star, p, k
+from parametri import num_nodes, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new
-from collections import deque
-from SSA import SSA_contact
 
 # @profile #mi serve per misurare lentezza del codice
 def SSATANX_full(G, ass_rates, dis_rates):
@@ -53,10 +51,8 @@ def SSATANX_full(G, ass_rates, dis_rates):
     # time_step = np.log(1/r2)/BTl
     time_step = np.random.exponential(1/BTl)
 
-    #print("it's big brain time")
     t_leap = 0
-    while t_leap < time_step:
-
+    while t_leap < time_step: # tau leaping per contact dynamics
         t_leap += tau_leap_new(G, time_step-t_leap, ass_rates, dis_rates, statuses)
 
     #computa epidemic_propensities I+S e D+S
@@ -76,11 +72,10 @@ def SSATANX_full(G, ass_rates, dis_rates):
         # print("accepting")
         R_index = 0
 
-        epidemic_propensities = np.array(epidemic_propensities,dtype=tuple)
+        # cumulative sum delle propensities
+        zeta = np.array(epidemic_propensities,dtype=tuple)[:,1].cumsum()
 
-        zeta = epidemic_propensities[:,1].cumsum()
-
-        # Trova la prossima reazione
+        # Trova la prossima reazione utilizzando binary sort
         R_index = np.searchsorted(zeta,BTl*u)
 
         if epidemic_propensities[R_index][2] == "spread":

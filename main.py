@@ -19,10 +19,10 @@ def graph_elaborator(values):
     G, ass_rates, dis_rates = values
 
     while t0 < tf:
-        # t0 += SSATANX_full(G, ass_rates, dis_rates)[0] # ritorna time_step
-        t0 += SSA_full(G, ass_rates, dis_rates)[0]
+        t0 += SSATANX_full(G, ass_rates, dis_rates)[0] # ritorna time_step
+        # t0 += SSA_full(G, ass_rates, dis_rates)[0]
         cnt += 1
-        if cnt % 1000 == 0: # per controllare che stia ancora lavorando
+        if cnt % 10 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
             print(f"After {time_current-time_start:.0f} seconds, graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
     

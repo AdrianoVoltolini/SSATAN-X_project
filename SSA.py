@@ -55,11 +55,10 @@ def SSA_full(G,ass_rates, dis_rates):
     r1 = np.random.uniform(0,1)
     # r2 = np.random.uniform(0,1)
 
-    propensities = np.array(propensities,dtype=tuple)
+    # cumulative sum delle propensities
+    zeta = np.array(propensities,dtype=tuple)[:,1].cumsum()
 
-    zeta = propensities[:,1].cumsum()
-
-    # Trova la prossima reazione
+    # Trova la prossima reazione utilizzando binary search
     R_index = np.searchsorted(zeta,(r0+a0)*r1)
 
     # computa tau
@@ -163,9 +162,8 @@ def SSA_contact(G, ass_rates, dis_rates, statuses):
     # cumulative sum delle propensities
     zeta = np.array(propensities,dtype=tuple)[:,1].cumsum()
 
-    # Trova la prossima reazione
+    # Trova la prossima reazione utilizzando binary search
     R_index = np.searchsorted(zeta,r0*r1)
-    # print(propensities[R_index])
 
     # computa tau
     # tau = np.log(1/r2)/r0

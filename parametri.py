@@ -17,7 +17,7 @@ w_diagnosed = 1/3
 w_dead = 0
 
 #parametri dell'epidemic dynamics
-gamma = 0.16 #infezione
+gamma = 0.04 #infezione
 w_gamma = 0.5 #penalità per essere diagnosticato
 delta = 0.5 #diagnosi
 beta = 0.08 # morte
@@ -28,11 +28,11 @@ dis_range = (0.4,2.0)
 
 # parametri tau-leaping
 k = 10
-epsilon = 0.03 #bisognerebbe fare cross validation per sceglierlo. Determina margine d'errore
+epsilon = 0.03 
 alpha = 0.75
 alpha_star = 0.9
 omega = 0.98
 omega_star = 1.02
-p = 100
+p = 20 # fai cross validation, loro hanno usato 100
 
 

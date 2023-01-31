@@ -10,6 +10,11 @@ def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
 
     G_edges = set(G.edges())
 
+    living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
+    E_max = (living_nodes*(living_nodes-1))/2
+    E = len(G_edges)
+    E_prime = E_max - E
+
     # per modificare i rate in base allo status del nodo
     contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
 
@@ -35,11 +40,6 @@ def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
                         ass_propensities.append(((i,j),ass_propensity,"new_contact"))
 
     r0_tot = r0_ass + r0_dis
-
-    living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
-    E_max = (living_nodes*(living_nodes-1))/2
-    E = len(G.edges)
-    E_prime = E_max - E
 
     mu = r0_ass - r0_dis
     mu_prime = r0_dis - r0_ass
@@ -144,6 +144,12 @@ def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
 
     G_edges = set(G.edges())
 
+    living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
+
+    E_max = (living_nodes*(living_nodes-1))/2
+    E = len(G_edges)
+    E_prime = E_max - E
+
     M = [0,0]
     Q = [0,0]
     C = [0,0]
@@ -171,11 +177,6 @@ def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
                         ass_propensity = (ass_rates[i]*contact_diz[statuses[i]])*(ass_rates[j]*contact_diz[statuses[j]])
                         r0[0] += ass_propensity
                         ass_propensities.append(((i,j),ass_propensity,"new_contact"))
-    
-    living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
-    E_max = (living_nodes*(living_nodes-1))/2
-    E = len(G.edges)
-    E_prime = E_max - E
 
     mu = r0[0] - r0[1]
     mu_prime = r0[1] - r0[0]
@@ -202,7 +203,7 @@ def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
             t_SSA = 0
             for i in range(p):
                 t_SSA += SSA_contact(G, ass_rates,dis_rates, statuses)
-                return t_SSA
+            return t_SSA
         else:
             for i in [0,1]: # 0 crea edges, 1 li rompe
                 B = len(S[i])-1
@@ -263,7 +264,7 @@ def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
 
                         r0_dis = zeta_dis[-1]
 
-                        #per trovare prossima reazione
+                        #per trovare prossima reazione utilizzando binary search
                         R_index_dis = np.searchsorted(zeta_dis,u[r]*r0_dis)
                         
                         #print("chosen breaking reaction:",temp_dis_propensities[R_index_dis])
@@ -313,7 +314,8 @@ def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
 if __name__ == '__main__':
     G, ass_rates, dis_rates = graph_creator()
     dt = 0
+    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
     while dt < 5:
-        dt += tau_leap_new(G,dt,ass_rates,dis_rates)
+        dt += tau_leap_new(G,dt,ass_rates,dis_rates, statuses)
 
 
