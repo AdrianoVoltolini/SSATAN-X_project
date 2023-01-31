@@ -6,11 +6,7 @@ from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_old(G,delta_t):
-
-    ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
-    dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
-    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
+def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
 
     G_edges = set(G.edges())
 
@@ -69,7 +65,7 @@ def tau_leap_old(G,delta_t):
             t_SSA = 0
             # print("it's SSA time!")
             for i in range(p):
-                t_SSA += SSA_contact(G)
+                t_SSA += SSA_contact(G, ass_rates, dis_rates, statuses)
             return t_SSA
         else:
             n_ass_reactions = np.random.poisson(r0_ass*tau)
@@ -144,10 +140,7 @@ def tau_leap_old(G,delta_t):
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_new(G,delta_t):
-    ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
-    dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
-    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
+def tau_leap_new(G,delta_t,ass_rates, dis_rates, statuses):
 
     G_edges = set(G.edges())
 
@@ -205,11 +198,11 @@ def tau_leap_new(G,delta_t):
         setAcceptedLeap = True
         
         if tau < k/r0_tot:
-            t_SSA = 0
             # print("it's SSA time!")
+            t_SSA = 0
             for i in range(p):
-                t_SSA += SSA_contact(G)
-            return t_SSA
+                t_SSA += SSA_contact(G, ass_rates,dis_rates, statuses)
+                return t_SSA
         else:
             for i in [0,1]: # 0 crea edges, 1 li rompe
                 B = len(S[i])-1
@@ -243,16 +236,16 @@ def tau_leap_new(G,delta_t):
                     C[i] = C[i] + M[i]
                     # print(Q[i],C[i])
 
-                    condition1_prime = M[0] - M[1] <= max(epsilon*E*0.75,1)
-                    condition2_prime = -M[0] + M[1] <= max(epsilon*E_prime*0.75,1)
+                condition1_prime = M[0] - M[1] <= max(epsilon*E*0.75,1)
+                condition2_prime = -M[0] + M[1] <= max(epsilon*E_prime*0.75,1)
 
-                    if (condition1_prime and condition2_prime) == False:
-                        return tau*alpha_star
+                if (condition1_prime and condition2_prime) == False:
+                    return tau*alpha_star
+                else:
+                    if delta_t + tau < 1:
+                        tau = tau**omega
                     else:
-                        if delta_t + tau < 1:
-                            return tau**omega
-                        else:
-                            return tau**omega_star
+                        tau = tau**omega_star
 
                 #da qui in poi è Algoritmo 4
 
@@ -315,11 +308,12 @@ def tau_leap_new(G,delta_t):
                 for i in [0,1]:
                     S[i].insert(row[i],[r0[0]*tau+Q[i],C[i]+M[i]])
                     tau = tau*alpha
+    return tau
 
 if __name__ == '__main__':
-    G = graph_creator()
-    delta = 0
-    while delta < 5:
-        delta += tau_leap_new(G,delta)
+    G, ass_rates, dis_rates = graph_creator()
+    dt = 0
+    while dt < 5:
+        dt += tau_leap_new(G,dt,ass_rates,dis_rates)
 
 

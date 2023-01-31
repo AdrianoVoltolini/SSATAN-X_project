@@ -1,14 +1,14 @@
 import numpy as np
 import networkx as nx
-from parametri import num_nodes, gamma, w_gamma, beta, delta
+from parametri import num_nodes, gamma, w_gamma, beta, delta, w_sano, w_infetto, w_diagnosed, w_dead, epsilon, alpha, alpha_star, omega, omega_star, p, k
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new
+from collections import deque
+from SSA import SSA_contact
 
 # @profile #mi serve per misurare lentezza del codice
-def SSATANX_full(G):
+def SSATANX_full(G, ass_rates, dis_rates):
 
-    ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
-    dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
 
     a0 = 0
@@ -56,7 +56,8 @@ def SSATANX_full(G):
     #print("it's big brain time")
     t_leap = 0
     while t_leap < time_step:
-        t_leap += tau_leap_new(G,time_step-t_leap)
+
+        t_leap += tau_leap_new(G, time_step-t_leap, ass_rates, dis_rates, statuses)
 
     #computa epidemic_propensities I+S e D+S
     for edge in G.edges():
@@ -138,6 +139,6 @@ def SSATANX_full(G):
     return (time_step,n_sus,n_inf,n_dia,n_mor)
 
 if __name__ == '__main__':
-    G = graph_creator()
+    G, ass_rates, dis_rates = graph_creator()
     for i in range(10):
-        SSATANX_full(G)
+        print(SSATANX_full(G, ass_rates, dis_rates))

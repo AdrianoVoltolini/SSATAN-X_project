@@ -32,5 +32,8 @@ def graph_creator(name="0"):
                     edges.append((i,j))
 
     G.add_edges_from(random.sample(edges,k=num_edges)) # sceglie edges a caso tra quelli possibili
+    
+    ass_rates =[nx.get_node_attributes(G,"ass_rate")[x] for x in range(num_nodes)]
+    dis_rates = [nx.get_node_attributes(G,"dis_rate")[x] for x in range(num_nodes)]
 
-    return G
+    return (G,ass_rates,dis_rates)

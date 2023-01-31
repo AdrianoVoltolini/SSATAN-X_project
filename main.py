@@ -8,20 +8,23 @@ import numpy as np
 
 graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 
+
 #per misurare quanto tempo ci mette
 time_start = time.perf_counter() 
 
-def graph_elaborator(G):
+def graph_elaborator(values):
     t0 = 0
     cnt = 0
 
+    G, ass_rates, dis_rates = values
+
     while t0 < tf:
-        t0 += SSATANX_full(G)[0] # ritorna time_step
-        # t0 += SSA_full(G)[0]
+        # t0 += SSATANX_full(G, ass_rates, dis_rates)[0] # ritorna time_step
+        t0 += SSA_full(G, ass_rates, dis_rates)[0]
         cnt += 1
-        if cnt % 10 == 0: # per controllare che stia ancora lavorando
+        if cnt % 1000 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
-            print(f"After {time_current-time_start:.0f} seconds, computation of graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
+            print(f"After {time_current-time_start:.0f} seconds, graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
     
     time_end = time.perf_counter()
 

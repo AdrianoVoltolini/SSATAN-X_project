@@ -9,7 +9,7 @@ from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti
 
 fig, (ax1, ax2) = plt.subplots(2,1,constrained_layout=True)
 
-G = graph_creator()
+G, ass_rates, dis_rates = graph_creator()
 
 G_SSA = G.copy()
 
@@ -20,7 +20,7 @@ data_SSA = {}
 data_SSA[0] = t0_status
 
 while t0_SSA < tf:
-    output = SSA_full(G_SSA)
+    output = SSA_full(G_SSA, ass_rates, dis_rates)
     t0_SSA += output[0]
     data_SSA[t0_SSA] = output[1:]
 
@@ -47,7 +47,7 @@ data_SSATANX[0] = t0_status
 
 
 while t0_SSATANX < tf:
-    output = SSATANX_full(G_SSATANX)
+    output = SSATANX_full(G_SSATANX, ass_rates, dis_rates)
     t0_SSATANX += output[0]
     data_SSATANX[t0_SSATANX] = output[1:]
 
