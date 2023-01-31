@@ -44,8 +44,7 @@ def SSATANX_full(G, ass_rates, dis_rates, statuses):
 
     BTl = Bs + Bd + Bo #upper bound delle epidemic_propensities
 
-    r2 = np.random.uniform(0,1)
-
+    #r2 = np.random.uniform(0,1)
     # time_step = np.log(1/r2)/BTl
     time_step = np.random.exponential(1/BTl)
 
