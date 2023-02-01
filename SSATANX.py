@@ -1,11 +1,11 @@
 import numpy as np
 import networkx as nx
-from parametri import tf, num_nodes, gamma, w_gamma, beta, delta
+from parametri import tf, num_nodes, gamma, w_gamma, beta, delta, p, k
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new
 
 # @profile #mi serve per misurare lentezza del codice
-def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, statuses):
+def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input, statuses):
 
     TL = t_final - t_current
 
@@ -46,6 +46,26 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, statuses):
 
     BTl = Bs + Bd + Bo #upper bound delle epidemic_propensities
 
+    if BTl <= 0: # sono morti tutti, non ci sono più reazioni da fare
+
+        n_sus = 0
+        n_inf = 0
+        n_dia = 0
+        n_mor = 0
+
+        for s in statuses:
+            if s == 0:
+                n_sus += 1
+            elif s == 1:
+                n_inf += 1
+            elif s == 2:
+                n_dia += 1
+            else:
+                n_mor += 1
+        
+        return (TL, n_sus, n_inf, n_dia, n_mor, statuses)
+
+
     #r2 = np.random.uniform(0,1)
     # time_step = np.log(1/r2)/BTl
     time_step = np.random.exponential(1/BTl)
@@ -73,7 +93,7 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, statuses):
     else:
         t_leap = 0
         while t_leap < time_step: # tau leaping per contact dynamics
-            t_leap += tau_leap_new(G, time_step, t_leap, ass_rates, dis_rates, statuses)
+            t_leap += tau_leap_new(G, time_step, t_leap, ass_rates, dis_rates, p_input, k_input, statuses)
 
         #computa epidemic_propensities I+S e D+S
         for edge in G.edges():
@@ -157,7 +177,7 @@ if __name__ == '__main__':
     G, ass_rates, dis_rates, statuses = graph_creator()
     t0 = 0
     while t0 < tf:    
-        output = SSATANX_full(G,tf, t0, ass_rates, dis_rates, statuses)
+        output = SSATANX_full(G,tf, t0, ass_rates, dis_rates,p,k, statuses)
         t0 += output[0]
         statuses = output[-1]
         print(output)

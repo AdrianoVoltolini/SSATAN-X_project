@@ -4,7 +4,7 @@ import pandas as pd
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
-from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti
+from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k,p
 
 
 fig, (ax1, ax2) = plt.subplots(2,1,constrained_layout=True)
@@ -50,7 +50,7 @@ data_SSATANX[0] = t0_status
 
 
 while t0_SSATANX < tf:
-    output = SSATANX_full(G_SSATANX, ass_rates, dis_rates, statuses_SSATANX)
+    output = SSATANX_full(G_SSATANX, tf, t0_SSATANX, ass_rates, dis_rates,k,p, statuses_SSATANX)
     t0_SSATANX += output[0]
     statuses_SSATANX = output[-1]
     data_SSATANX[t0_SSATANX] = output[1:-1]

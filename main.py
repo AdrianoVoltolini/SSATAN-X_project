@@ -19,13 +19,13 @@ def graph_elaborator(values):
     G, ass_rates, dis_rates, statuses = values
 
     while t0 < tf:
-        # output = SSA_full(G, ass_rates, dis_rates, statuses)
-        output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, statuses)
+        output = SSA_full(G, ass_rates, dis_rates, statuses)
+        # output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, statuses)
         t0 += output[0]
         statuses = output[-1]
 
         cnt += 1
-        if cnt % 10 == 0: # per controllare che stia ancora lavorando
+        if cnt % 1000 == 0: # per controllare che stia ancora lavorando
             time_current = time.perf_counter()  
             print(f"After {time_current-time_start:.0f} seconds, graph {G.name} is {(1-((tf-t0)/tf))*100:.0f}% complete")
     

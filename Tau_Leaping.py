@@ -8,7 +8,7 @@ from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, statuses):
+def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, statuses):
 
     delta_t = t_final - t_current
 
@@ -65,10 +65,10 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, statuses):
     while setAcceptedLeap == False: # ho deciso di seguire il libro invece che il paper per tau-leaping
         setAcceptedLeap = True
         
-        if tau < k/r0_tot:
+        if tau < k_input/r0_tot:
             t_SSA = 0
             # print("it's SSA time!")
-            for i in range(p):
+            for i in range(p_input):
                 t_SSA += SSA_contact(G, ass_rates, dis_rates, statuses)
             return t_SSA
         else:
@@ -144,7 +144,7 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, statuses):
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates, statuses):
+def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, statuses):
 
     delta_t = t_final - t_current
 
@@ -204,10 +204,10 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates, statuses):
     while setAcceptedLeap == False:
         setAcceptedLeap = True
         
-        if tau < k/r0_tot:
+        if tau < k_input/r0_tot:
             # print("it's SSA time!")
             t_SSA = 0
-            for i in range(p):
+            for i in range(p_input):
                 t_SSA += SSA_contact(G, ass_rates,dis_rates, statuses)
             return t_SSA
         else:
@@ -322,6 +322,6 @@ if __name__ == '__main__':
     dt = 0
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
     while dt < tf:
-        dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,statuses)
+        dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,p,k,statuses)
 
 
