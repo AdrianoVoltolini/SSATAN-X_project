@@ -1,7 +1,7 @@
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
-from parametri import tf, n_graphs
+from parametri import tf, n_graphs, k, p
 import time
 from multiprocessing import Pool
 import numpy as np
@@ -19,8 +19,8 @@ def graph_elaborator(values):
     G, ass_rates, dis_rates, statuses = values
 
     while t0 < tf:
-        output = SSA_full(G, ass_rates, dis_rates, statuses)
-        # output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, statuses)
+        # output = SSA_full(G, ass_rates, dis_rates, statuses)
+        output = SSATANX_full(G, tf, t0, ass_rates, dis_rates,k,p, statuses)
         t0 += output[0]
         statuses = output[-1]
 
