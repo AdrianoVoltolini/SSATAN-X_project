@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from ContactNetwork import graph_creator

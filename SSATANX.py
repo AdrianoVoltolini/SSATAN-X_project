@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+
 from parametri import tf, num_nodes, gamma, w_gamma, beta, delta, p, k
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new

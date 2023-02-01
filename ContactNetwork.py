@@ -1,5 +1,6 @@
 import networkx as nx
-import random
+from numpy import random
+
 from parametri import num_nodes, num_edges, t0_sani, t0_infetti, t0_diagnosed, t0_morti, ass_range, dis_range
 
 #Crea graph iniziale

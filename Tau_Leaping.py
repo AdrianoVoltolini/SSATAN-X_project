@@ -1,6 +1,7 @@
 import numpy as np
 from collections import deque
 import networkx as nx
+
 from parametri import (
     tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead,
     p, k, alpha, alpha_star, epsilon, omega, omega_star)

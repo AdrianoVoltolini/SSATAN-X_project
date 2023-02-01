@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+
 from parametri import w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 
