@@ -68,10 +68,8 @@ ax2.set_xlim(left=0,right=5)
 ax2.set_xlabel("Time")
 ax2.set_ylabel("number of nodes")
 
-
 plt.show()
 
 #controlla che i morti non diventino zombie
 print(data_SSATANX.iloc[3,:].is_monotonic_increasing)
 print(data_SSA.iloc[3,:].is_monotonic_increasing)
-     
