@@ -8,7 +8,9 @@ from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
+def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, statuses):
+
+    delta_t = t_final - t_current
 
     G_edges = set(G.edges())
 
@@ -142,7 +144,9 @@ def tau_leap_old(G, delta_t, ass_rates, dis_rates, statuses):
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_new(G, delta_t, ass_rates, dis_rates, statuses):
+def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates, statuses):
+
+    delta_t = t_final - t_current
 
     G_edges = set(G.edges())
 
@@ -239,8 +243,8 @@ def tau_leap_new(G, delta_t, ass_rates, dis_rates, statuses):
                     C[i] = C[i] + M[i]
                     # print(Q[i],C[i])
 
-                condition1_prime = M[0] - M[1] <= max(epsilon*E*0.75,1)
-                condition2_prime = -M[0] + M[1] <= max(epsilon*E_prime*0.75,1)
+                condition1_prime = M[0] - M[1] <= max(epsilon*E*alpha,1)
+                condition2_prime = -M[0] + M[1] <= max(epsilon*E_prime*alpha,1)
 
                 if (condition1_prime and condition2_prime) == False:
                     return tau*alpha_star
@@ -318,6 +322,6 @@ if __name__ == '__main__':
     dt = 0
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
     while dt < tf:
-        dt += tau_leap_new(G,dt,ass_rates,dis_rates, statuses)
+        dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,statuses)
 
 
