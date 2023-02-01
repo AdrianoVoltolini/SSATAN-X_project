@@ -11,8 +11,6 @@ from SSATANX import SSATANX_full
 
 graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 
-time_start = time.perf_counter() 
-
 def graph_elaborator(values):
 
     G, ass_rates, dis_rates, statuses = values
@@ -29,17 +27,19 @@ def graph_elaborator(values):
 
             G_new = G.copy()
 
+            time_current = time.perf_counter()  
             while t0 < tf:
-                output = SSATANX_full(G_new, tf, t0, ass_rates, dis_rates,k, p, statuses)
+                output = SSATANX_full(G_new, tf, t0, ass_rates, dis_rates, k, p, statuses)
                 t0 += output[0]
                 statuses = output[-1]
 
-            time_current = time.perf_counter()  
-            print(f"After {time_current-time_start:.0f} seconds, Copy number {cnt} of graph {G.name} is complete")
+            time_end = time.perf_counter()
+
+            print(f"Copy {cnt} of graph {G.name} is complete")
             
             cnt += 1
-            time_end = time.perf_counter()
-            output_diz[(k,p)] = time_end - time_start
+            
+            output_diz[(k,p)] = time_end - time_current
 
     # print(f"It took me {time_end-time_start:.2f} seconds and {cnt} steps to finish graph {G.name}")
     return output_diz
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         for p in np.arange(10,110,10):
             mean_dataframe.loc[k,p] = diz_mean[(k,p)]
     
-    # print(mean_dataframe)
+    print(mean_dataframe)
 
     fig, ax = plt.subplots(1,1)
     cp = ax.contourf(mean_dataframe.columns, mean_dataframe.index,mean_dataframe)
