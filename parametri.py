@@ -1,7 +1,7 @@
 tf = 5
-n_graphs = 12
+n_graphs = 4
 
-num_nodes = 100 
+num_nodes = 50 
 num_edges = int(0.15*num_nodes*(num_nodes-1)/2) # WARNING: non mettere più di N(N-1)/2 edges!
 
 #frazioni della popolazione iniziale
@@ -27,7 +27,7 @@ ass_range = (0.5,2.5)
 dis_range = (0.4,2.0)
 
 # parametri tau-leaping
-k = 1 # fai cross validation
+k = 10 # fai cross validation
 epsilon = 0.03 
 alpha = 0.75
 alpha_star = 0.9
