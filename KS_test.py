@@ -5,7 +5,7 @@ import numpy as np
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
-from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k,p
+from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k, p, a, t_decimals
 
 
 G, ass_rates, dis_rates, statuses = graph_creator()
@@ -50,17 +50,17 @@ SSATANX_times = []
 # uno schifo ma funziona. Trova tempi di SSA e SSATAN sufficientemente vicini, arrotondati al quarto decimale
 for SSATANX_time in data_SSATANX.columns:
     for SSA_time in data_SSA.columns:
-        if str(SSA_time).startswith(str(round(SSATANX_time,3))):
+        if str(SSA_time).startswith(str(round(SSATANX_time,t_decimals))):
             if SSATANX_time not in SSATANX_times and SSA_time not in SSA_times:
                 SSA_times.append(SSA_time)
                 SSATANX_times.append(SSATANX_time)
 
 
 SSATANX_rounded = data_SSATANX.loc[:,SSATANX_times]
-SSATANX_rounded.columns = [round(x,3) for x in SSATANX_rounded.columns]
+SSATANX_rounded.columns = [round(x,t_decimals) for x in SSATANX_rounded.columns]
 
 SSA_rounded = data_SSA.loc[:,SSA_times]
-SSA_rounded.columns = [round(x,3) for x in SSATANX_rounded.columns]
+SSA_rounded.columns = [round(x,t_decimals) for x in SSATANX_rounded.columns]
 
 print(f"{len(SSA_rounded.columns)} common times have been found.")
 
@@ -69,8 +69,8 @@ print(f"{len(SSA_rounded.columns)} common times have been found.")
 
 diff_rounded = abs(SSA_rounded - SSATANX_rounded)
 
-a = 0.05
-condition = np.sqrt(-np.log(a/2)*(1 + (len(data_SSATANX.columns)/len(data_SSA.columns)))/(2*len(data_SSATANX.columns)))
+# non so se qui bisogna mettere la lunghezza dei dataset originali o quella dei dataset con tempi in comune (rounded)
+condition = np.sqrt(-np.log(a/2)*(1 + (len(SSA_rounded.columns)/len(SSATANX_rounded.columns)))/(2*len(SSATANX_rounded.columns)))
 
 print(f"Threshold for the distance: {condition}")
 

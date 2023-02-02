@@ -1,7 +1,7 @@
 tf = 5
 n_graphs = 4
 
-num_nodes = 50 
+num_nodes = 100 
 num_edges = int(0.15*num_nodes*(num_nodes-1)/2) # WARNING: non mettere più di N(N-1)/2 edges!
 
 #frazioni della popolazione iniziale
@@ -35,4 +35,7 @@ omega = 0.98
 omega_star = 1.02
 p = 10 # fai cross validation
 
+# parametri KS test
+a = 0.05
+t_decimals = 6
 
