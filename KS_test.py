@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from ContactNetwork import graph_creator
 from SSA import SSA_full
@@ -60,7 +60,7 @@ SSATANX_rounded = data_SSATANX.loc[:,SSATANX_times]
 SSATANX_rounded.columns = [round(x,t_decimals) for x in SSATANX_rounded.columns]
 
 SSA_rounded = data_SSA.loc[:,SSA_times]
-SSA_rounded.columns = [round(x,t_decimals) for x in SSATANX_rounded.columns]
+SSA_rounded.columns = SSATANX_rounded.columns
 
 print(f"{len(SSA_rounded.columns)} common times have been found.")
 
@@ -70,10 +70,28 @@ print(f"{len(SSA_rounded.columns)} common times have been found.")
 diff_rounded = abs(SSA_rounded - SSATANX_rounded)
 
 # non so se qui bisogna mettere la lunghezza dei dataset originali o quella dei dataset con tempi in comune (rounded)
-condition = np.sqrt(-np.log(a/2)*(1 + (len(SSA_rounded.columns)/len(SSATANX_rounded.columns)))/(2*len(SSATANX_rounded.columns)))
+condition = np.sqrt(-np.log(a/2)*(1 + (len(SSA_rounded.columns)/len(SSATANX_rounded.columns)))/(2*len(SSATANX_rounded.columns)))*num_nodes
 
 print(f"Threshold for the distance: {condition}")
 
+fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,constrained_layout=True)
+axes = [ax1,ax2,ax3,ax4]
+
+status_diz = {0: "Susceptibles", 1: "Infected", 2: "Diagnosed", 3: "Dead"}
+
+cnt = 0
 for riga in diff_rounded.iterrows():
     riga_max = max(riga[1])
     print(f"Status: {riga[0]}. Observed maximum distance: {riga_max}. Is distance below the threshold? {riga_max < condition}")
+    axes[cnt].plot(SSA_rounded.columns, SSA_rounded.iloc[cnt,:])
+    axes[cnt].plot(SSATANX_rounded.columns, SSATANX_rounded.iloc[cnt,:])
+    axes[cnt].set_title(f"{status_diz[cnt]}")
+    axes[cnt].set_ylim(0,num_nodes)
+    axes[cnt].set_xlabel("Time")
+    axes[cnt].set_ylabel("number of nodes")
+    axes[cnt].legend(["SSA","SSATANX"])
+    cnt += 1
+
+fig.suptitle(f"SSA vs SSATANX comparison ({num_nodes} nodes)")
+
+plt.show()
