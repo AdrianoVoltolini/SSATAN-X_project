@@ -51,7 +51,7 @@ SSATANX_times = []
 for SSATANX_time in data_SSATANX.columns:
     for SSA_time in data_SSA.columns:
         if str(SSA_time).startswith(str(round(SSATANX_time,3))):
-            if SSATANX_time not in SSATANX_times:
+            if SSATANX_time not in SSATANX_times and SSA_time not in SSA_times:
                 SSA_times.append(SSA_time)
                 SSATANX_times.append(SSATANX_time)
 
@@ -62,15 +62,18 @@ SSATANX_rounded.columns = [round(x,3) for x in SSATANX_rounded.columns]
 SSA_rounded = data_SSA.loc[:,SSA_times]
 SSA_rounded.columns = [round(x,3) for x in SSATANX_rounded.columns]
 
-print(len(SSA_rounded.columns))
+print(f"{len(SSA_rounded.columns)} common times have been found.")
 
-d0 = np.max(abs(SSATANX_rounded.loc[0,:] - SSA_rounded.loc[0,:]))
-d1 = np.max(abs(SSATANX_rounded.loc[1,:] - SSA_rounded.loc[1,:]))
-d2 = np.max(abs(SSATANX_rounded.loc[2,:] - SSA_rounded.loc[2,:]))
-d3 = np.max(abs(SSATANX_rounded.loc[3,:] - SSA_rounded.loc[3,:]))
+# print(SSATANX_rounded)
+# print(SSA_rounded)
 
-d_mean = (d0+d1+d2+d3)/4
+diff_rounded = abs(SSA_rounded - SSATANX_rounded)
 
-C_05 = 1.358
-condition = C_05*np.sqrt((len(SSATANX_rounded.columns)*2)/(len(SSATANX_rounded.columns**2)))
-print(condition, d_mean, condition > d_mean) 
+a = 0.05
+condition = np.sqrt(-np.log(a/2)*(1 + (len(data_SSATANX.columns)/len(data_SSA.columns)))/(2*len(data_SSATANX.columns)))
+
+print(f"Threshold for the distance: {condition}")
+
+for riga in diff_rounded.iterrows():
+    riga_max = max(riga[1])
+    print(f"Status: {riga[0]}. Observed maximum distance: {riga_max}. Is distance below the threshold? {riga_max < condition}")
