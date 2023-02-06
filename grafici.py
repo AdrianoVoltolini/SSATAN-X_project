@@ -21,7 +21,7 @@ data_SSA = {}
 data_SSA[0] = t0_status
 
 while t0_SSA < tf:
-    output = SSA_full(G_SSA, ass_rates, dis_rates, statuses_SSA)
+    output = SSA_full(G_SSA, tf, t0_SSA, ass_rates, dis_rates, statuses_SSA)
     t0_SSA += output[0]
     statuses_SSA = output[-1]
     data_SSA[t0_SSA] = output[1:-1]

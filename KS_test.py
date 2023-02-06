@@ -9,68 +9,45 @@ from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti
 
 
 G, ass_rates, dis_rates, statuses = graph_creator()
+t0_status = (round(num_nodes*t0_sani), round(num_nodes*t0_infetti), round(num_nodes*t0_diagnosed), round(num_nodes*t0_morti))
 
 G_SSA = G.copy()
 statuses_SSA = statuses.copy()
-
-t0_status = (round(num_nodes*t0_sani), round(num_nodes*t0_infetti), round(num_nodes*t0_diagnosed), round(num_nodes*t0_morti))
-
 t0_SSA = 0
 data_SSA = {}
 data_SSA[0] = t0_status
-
-while t0_SSA < tf:
-    output = SSA_full(G_SSA, ass_rates, dis_rates, statuses_SSA)
-    t0_SSA += output[0]
-    statuses_SSA = output[-1]
-    data_SSA[t0_SSA] = output[1:-1]
-
-data_SSA = pd.DataFrame(data_SSA)
-
+output_SSA = []
 
 G_SSATANX = G.copy()
 statuses_SSATANX = statuses.copy()
-
 t0_SSATANX = 0
 data_SSATANX = {}
 data_SSATANX[0] = t0_status
+output_SSATANX = []
 
+for t in np.arange(0.5,5.5,0.5):
 
-while t0_SSATANX < tf:
-    output = SSATANX_full(G_SSATANX, tf, t0_SSATANX, ass_rates, dis_rates,k,p, statuses_SSATANX)
-    t0_SSATANX += output[0]
-    statuses_SSATANX = output[-1]
-    data_SSATANX[t0_SSATANX] = output[1:-1]
+    while t0_SSA < t:
+        output_SSA = SSA_full(G_SSA, t, t0_SSA, ass_rates, dis_rates, statuses_SSA)
+        t0_SSA += output_SSA[0]
+        statuses_SSA = output_SSA[-1]
 
+    while t0_SSATANX < t:
+        output_SSATANX = SSATANX_full(G_SSATANX, t, t0_SSATANX, ass_rates, dis_rates,k,p, statuses_SSATANX)
+        t0_SSATANX += output_SSATANX[0]
+        statuses_SSATANX = output_SSATANX[-1]
+
+    data_SSA[t] = output_SSA[1:-1]
+    data_SSATANX[t] = output_SSATANX[1:-1]
+
+data_SSA = pd.DataFrame(data_SSA)
 data_SSATANX = pd.DataFrame(data_SSATANX)
 
-SSA_times = []
-SSATANX_times = []
+data_diff = abs(data_SSA - data_SSATANX)
 
-# uno schifo ma funziona. Trova tempi di SSA e SSATAN sufficientemente vicini, arrotondati al quarto decimale
-for SSATANX_time in data_SSATANX.columns:
-    for SSA_time in data_SSA.columns:
-        if str(SSA_time).startswith(str(round(SSATANX_time,t_decimals))):
-            if SSATANX_time not in SSATANX_times and SSA_time not in SSA_times:
-                SSA_times.append(SSA_time)
-                SSATANX_times.append(SSATANX_time)
+print(data_diff)
 
-
-SSATANX_rounded = data_SSATANX.loc[:,SSATANX_times]
-SSATANX_rounded.columns = [round(x,t_decimals) for x in SSATANX_rounded.columns]
-
-SSA_rounded = data_SSA.loc[:,SSA_times]
-SSA_rounded.columns = SSATANX_rounded.columns
-
-print(f"{len(SSA_rounded.columns)} common times have been found.")
-
-# print(SSATANX_rounded)
-# print(SSA_rounded)
-
-diff_rounded = abs(SSA_rounded - SSATANX_rounded)
-
-# non so se qui bisogna mettere la lunghezza dei dataset originali o quella dei dataset con tempi in comune (rounded)
-condition = np.sqrt(-np.log(a/2)*(1 + (len(SSA_rounded.columns)/len(SSATANX_rounded.columns)))/(2*len(SSATANX_rounded.columns)))*num_nodes
+condition = np.sqrt(-np.log(a/2)*(1 + (len(data_SSA.columns)/len(data_SSATANX.columns)))/(2*len(data_SSATANX.columns)))*num_nodes
 
 print(f"Threshold for the distance: {condition}")
 
@@ -80,11 +57,11 @@ axes = [ax1,ax2,ax3,ax4]
 status_diz = {0: "Susceptibles", 1: "Infected", 2: "Diagnosed", 3: "Dead"}
 
 cnt = 0
-for riga in diff_rounded.iterrows():
+for riga in data_diff.iterrows():
     riga_max = max(riga[1])
     print(f"Status: {riga[0]}. Observed maximum distance: {riga_max}. Is distance below the threshold? {riga_max < condition}")
-    axes[cnt].plot(SSA_rounded.columns, SSA_rounded.iloc[cnt,:])
-    axes[cnt].plot(SSATANX_rounded.columns, SSATANX_rounded.iloc[cnt,:])
+    axes[cnt].plot(data_SSA.columns, data_SSA.iloc[cnt,:])
+    axes[cnt].plot(data_SSATANX.columns, data_SSATANX.iloc[cnt,:])
     axes[cnt].set_title(f"{status_diz[cnt]}")
     axes[cnt].set_ylim(0,num_nodes)
     axes[cnt].set_xlabel("Time")

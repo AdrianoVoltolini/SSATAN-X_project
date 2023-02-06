@@ -5,7 +5,9 @@ from parametri import w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, be
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def SSA_full(G, ass_rates, dis_rates, statuses):
+def SSA_full(G, t_final, t_current, ass_rates, dis_rates, statuses):
+
+    TL = t_final - t_current
 
     G_edges = set(G.edges())
     
@@ -63,6 +65,24 @@ def SSA_full(G, ass_rates, dis_rates, statuses):
     # computa tau
     # tau = np.log(1/r2)/(r0+a0)
     tau = np.random.exponential(1/(r0+a0))
+
+    if tau > TL: 
+        #reject
+        n_sus = 0
+        n_inf = 0
+        n_dia = 0
+        n_mor = 0
+
+        for s in statuses:
+            if s == 0:
+                n_sus += 1
+            elif s == 1:
+                n_inf += 1
+            elif s == 2:
+                n_dia += 1
+            else:
+                n_mor += 1
+        return (TL, n_sus, n_inf, n_dia, n_mor, statuses)
     #print(tau)
 
     # aggiorniamo il graph
@@ -128,7 +148,9 @@ def SSA_full(G, ass_rates, dis_rates, statuses):
     
     return (tau, n_sus, n_inf, n_dia, n_mor, new_statuses)
 
-def SSA_contact(G, ass_rates, dis_rates, statuses):
+def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
+
+    TL = t_final - t_current
 
     G_edges = set(G.edges())
 
@@ -168,6 +190,10 @@ def SSA_contact(G, ass_rates, dis_rates, statuses):
     # tau = np.log(1/r2)/r0
     tau = np.random.exponential(1/r0)
     #print(tau)
+
+    if tau > TL:
+        #reject
+        return TL
 
     # aggiorniamo il graph
     if propensities[R_index][2] == "new_contact":

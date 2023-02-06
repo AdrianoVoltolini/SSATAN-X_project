@@ -19,7 +19,7 @@ def graph_elaborator(values):
     G, ass_rates, dis_rates, statuses = values
 
     while t0 < tf:
-        # output = SSA_full(G, ass_rates, dis_rates, statuses)
+        # output = SSA_full(G, tf, t0, ass_rates, dis_rates, statuses)
         output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, k, p, statuses)
         t0 += output[0]
         statuses = output[-1]

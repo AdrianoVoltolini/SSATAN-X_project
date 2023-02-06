@@ -70,7 +70,7 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
             t_SSA = 0
             # print("it's SSA time!")
             for i in range(p_input):
-                t_SSA += SSA_contact(G, ass_rates, dis_rates, statuses)
+                t_SSA += SSA_contact(G, t_final, t_current, ass_rates, dis_rates, statuses)
             return t_SSA
         else:
             n_ass_reactions = np.random.poisson(r0_ass*tau)
@@ -209,7 +209,7 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
             # print("it's SSA time!")
             t_SSA = 0
             for i in range(p_input):
-                t_SSA += SSA_contact(G, ass_rates,dis_rates, statuses)
+                t_SSA += SSA_contact(G,t_final, t_current, ass_rates,dis_rates, statuses)
             return t_SSA
         else:
             for i in [0,1]: # 0 crea edges, 1 li rompe
