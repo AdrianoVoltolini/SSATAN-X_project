@@ -8,6 +8,8 @@ from SSA import SSA_full
 from SSATANX import SSATANX_full
 from parametri import tf, num_nodes
 
+# questo script fa animazione del network
+
 G, ass_rate, dis_rate, old_statuses = graph_creator()
 
 fig = plt.figure()

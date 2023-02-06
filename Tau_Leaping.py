@@ -10,15 +10,16 @@ from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
 def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, statuses):
+    #versione semplice di tau-leaping. L'altra versione è in fondo allo script
 
     delta_t = t_final - t_current
 
-    G_edges = set(G.edges())
+    G_edges = set(G.edges()) # lavorare con i set dovrebbe essere più veloce
 
     living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
-    E_max = (living_nodes*(living_nodes-1))/2
-    E = len(G_edges)
-    E_prime = E_max - E
+    E_max = (living_nodes*(living_nodes-1))/2 # numero massimo di edges possibili
+    E = len(G_edges) # numero di edge esistenti
+    E_prime = E_max - E # numero di edges non esistenti ma che potrebbero esistere
 
     # per modificare i rate in base allo status del nodo
     contact_diz = {0: w_sano, 1: w_infetto, 2:w_diagnosed, 3:w_dead}
@@ -46,6 +47,7 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
 
     r0_tot = r0_ass + r0_dis
 
+    # parametri per calcolare tau
     mu = r0_ass - r0_dis
     mu_prime = r0_dis - r0_ass
     sigma2 = r0_ass + r0_dis
@@ -54,38 +56,33 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
     tau_b = (max(epsilon*E,1)**2)/(sigma2*4) # nel paper il *4 non c'è, mentre nel libro sì
     tau_c = max(epsilon*E_prime,1)/(abs(mu_prime)*2)
     tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
-    # print(tau_a,tau_b,tau_c,tau_d)
+
     tau_temp = min(tau_a,tau_b,tau_c,tau_d)
 
-    # print(tau_temp,delta_t)
     tau = min(tau_temp, delta_t)
 
-    #print(tau, k/r0_tot)
-
     setAcceptedLeap = False
-    while setAcceptedLeap == False: # ho deciso di seguire il libro invece che il paper per tau-leaping
+    while setAcceptedLeap == False: # qui seguo il libro invece che il paper
         setAcceptedLeap = True
         
         if tau < k_input/r0_tot:
             t_SSA = 0
-            # print("it's SSA time!")
+            # it's SSA time!
             for i in range(p_input):
                 t_SSA += SSA_contact(G, t_final, t_current, ass_rates, dis_rates, statuses)
             return t_SSA
         else:
+            # calcoliamo numero di reazioni che avverranno
             n_ass_reactions = np.random.poisson(r0_ass*tau)
             n_dis_reactions = np.random.poisson(r0_dis*tau)
 
-            E_next = E + n_ass_reactions - n_dis_reactions
+            delta_E = n_ass_reactions - n_dis_reactions
 
-            # print(E_next, E_max)
+            condition1_leap = delta_E <= max(epsilon*E,1)
+            condition2_leap = -(delta_E) <= max(epsilon*E_prime,1)
 
-            if E_next < 0 or E_next > E_max:
-                tau = tau*alpha
-                setAcceptedLeap = False
-                # print("Trying with a smaller tau")
-            else:
-                # da qui in poi è Algoritmo 4
+            if (condition1_leap and condition2_leap) == True: # leap condition
+                # accepted, da qui in poi è algoritmo 4
 
                 O = [0]*n_ass_reactions + [1]*n_dis_reactions
                 np.random.shuffle(O)
@@ -103,8 +100,6 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
 
                         #per trovare prossima reazione
                         R_index_dis = np.searchsorted(zeta_dis,u[r]*r0_dis)
-                        
-                        #print("chosen breaking reaction:",temp_dis_propensities[R_index_dis])
 
                         #rimuovi dal graph
                         n1 = dis_propensities[R_index_dis][0][0]
@@ -126,8 +121,6 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
 
                         #per trovare prossima reazione
                         R_index_ass = np.searchsorted(zeta_ass,u_r0_ass)
-                        
-                        #print("chosen creating reaction:",temp_ass_propensities[R_index_ass])
 
                         #aggiungi al graph
                         n1 = ass_propensities[R_index_ass][0][0]
@@ -142,10 +135,16 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
                         zeta_ass.remove(zeta_ass[R_index_ass])
                         ass_propensities.remove(ass_propensities[R_index_ass])
 
+            else:
+                # rejected, prova con tau più piccolo
+                tau = tau*alpha
+                setAcceptedLeap = False
+
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
 def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, statuses):
+    # versione del paper di tau-leaping.
 
     delta_t = t_final - t_current
 
@@ -153,10 +152,11 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
 
     living_nodes = num_nodes - statuses.count(3) # conta i nodi ancora vivi nel graph
 
-    E_max = (living_nodes*(living_nodes-1))/2
-    E = len(G_edges)
-    E_prime = E_max - E
+    E_max = (living_nodes*(living_nodes-1))/2 # numero massimo di edges possibili
+    E = len(G_edges) # numero di edge esistenti
+    E_prime = E_max - E # numero di edges non esistenti ma che potrebbero esistere
 
+    #variabili di ottimizzazione
     M = [0,0]
     Q = [0,0]
     C = [0,0]
@@ -185,6 +185,7 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
                         r0[0] += ass_propensity
                         ass_propensities.append(((i,j),ass_propensity,"new_contact"))
 
+    # parametri per calcolare tau
     mu = r0[0] - r0[1]
     mu_prime = r0[1] - r0[0]
     sigma2 = r0[0] + r0[1]
@@ -195,10 +196,9 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
     tau_b = (max(epsilon*E,1)**2)/(sigma2*4) # nel paper il *4 non c'è, mentre nel libro sì
     tau_c = max(epsilon*E_prime,1)/(abs(mu_prime)*2)
     tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
-    # print(tau_a,tau_b,tau_c,tau_d)
+
     tau_temp = min(tau_a,tau_b,tau_c,tau_d)
 
-    # print(tau_temp,delta_t)
     tau = min(tau_temp, delta_t)
 
     setAcceptedLeap = False
@@ -206,7 +206,7 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
         setAcceptedLeap = True
         
         if tau < k_input/r0_tot:
-            # print("it's SSA time!")
+            # it's SSA time!"
             t_SSA = 0
             for i in range(p_input):
                 t_SSA += SSA_contact(G,t_final, t_current, ass_rates,dis_rates, statuses)
@@ -230,11 +230,11 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
 
             condition1_leap = M[0] - M[1] <= max(epsilon*E,1)
             condition2_leap = -M[0] + M[1] <= max(epsilon*E_prime,1)
-            # print(M[0] - M[1], epsilon*E)
-            # print(-M[0] +M[1], epsilon*E_prime)
-            if (condition1_leap and condition2_leap) == True: # leap accepted
+
+            if (condition1_leap and condition2_leap) == True: 
+                # leap accepted
+
                 for i in [0,1]:
-                    # S[i][:] = S[i][row+1:]
                     cnt = 0
                     while cnt <= row[i]:
                         S[i].popleft()
@@ -242,12 +242,12 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
                     S[i].appendleft([r0[i]*tau + Q[i],C[i]+M[i]])
                     Q[i] = Q[i] + r0[i]*tau
                     C[i] = C[i] + M[i]
-                    # print(Q[i],C[i])
 
                 condition1_prime = M[0] - M[1] <= max(epsilon*E*alpha,1)
                 condition2_prime = -M[0] + M[1] <= max(epsilon*E_prime*alpha,1)
 
-                if (condition1_prime and condition2_prime) == False:
+                if (condition1_prime and condition2_prime) == False: 
+                    #caso in cui leap sarebbe stato rigettato con un threshold leggermente più basso
                     return tau*alpha_star
                 else:
                     if delta_t + tau < 1:
@@ -273,8 +273,6 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
 
                         #per trovare prossima reazione utilizzando binary search
                         R_index_dis = np.searchsorted(zeta_dis,u[r]*r0_dis)
-                        
-                        #print("chosen breaking reaction:",temp_dis_propensities[R_index_dis])
 
                         #rimuovi dal graph
                         n1 = dis_propensities[R_index_dis][0][0]
@@ -288,7 +286,6 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
                         ass_propensities.append(new_row)
                         zeta_dis.remove(zeta_dis[R_index_dis])
                         dis_propensities.remove(dis_propensities[R_index_dis])
-
 
                     else: #aggiungi un edge
                         r0_ass = zeta_ass[-1]
@@ -311,13 +308,18 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, st
                         dis_propensities.append(new_row)
                         zeta_ass.remove(zeta_ass[R_index_ass])
                         ass_propensities.remove(ass_propensities[R_index_ass])
-            else: #leap rejected
+
+            else: 
+                # leap rejected, prova con tau più piccolo
                 setAcceptedLeap = False
                 for i in [0,1]:
                     S[i].insert(row[i],[r0[0]*tau+Q[i],C[i]+M[i]])
                     tau = tau*alpha
     return tau
 
+
+
+# roba per testare, ignora
 if __name__ == '__main__':
     G, ass_rates, dis_rates = graph_creator()
     dt = 0

@@ -7,6 +7,8 @@ from SSA import SSA_full
 from SSATANX import SSATANX_full
 from parametri import tf, n_graphs, k, p
 
+# questo script serve per misurare velocità media di SSA e SSATANX
+
 graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 
 #per misurare quanto tempo ci mette

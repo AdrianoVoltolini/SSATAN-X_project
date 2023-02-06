@@ -9,7 +9,7 @@ def SSA_full(G, t_final, t_current, ass_rates, dis_rates, statuses):
 
     TL = t_final - t_current
 
-    G_edges = set(G.edges())
+    G_edges = set(G.edges()) # lavorare con i set dovrebbe essere più veloce
     
     r0 = 0 # contact dynamics
     a0 = 0 # epidemic dynamics
@@ -52,7 +52,7 @@ def SSA_full(G, t_final, t_current, ass_rates, dis_rates, statuses):
                         r0 += ass_propensity
                         propensities.append(((i,j),ass_propensity,"new_contact"))
         
-    # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
+    # genera numeri random
     r1 = np.random.uniform(0,1)
     # r2 = np.random.uniform(0,1)
 
@@ -83,7 +83,6 @@ def SSA_full(G, t_final, t_current, ass_rates, dis_rates, statuses):
             else:
                 n_mor += 1
         return (TL, n_sus, n_inf, n_dia, n_mor, statuses)
-    #print(tau)
 
     # aggiorniamo il graph
     if propensities[R_index][2] == "new_contact":
@@ -152,7 +151,7 @@ def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
 
     TL = t_final - t_current
 
-    G_edges = set(G.edges())
+    G_edges = set(G.edges()) # lavorare con i set dovrebbe essere più veloce
 
     r0 = 0 # contact dynamics
 
@@ -176,7 +175,7 @@ def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
                         r0 += ass_propensity
                         propensities.append(((i,j),ass_propensity,"new_contact"))
 
-    # genera numeri random. Seguo il libro di marchetti perché nel paper non si capisce una minchia
+    # genera numeri random
     r1 = np.random.uniform(0,1)
     # r2 = np.random.uniform(0,1)
 
@@ -189,7 +188,6 @@ def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
     # computa tau
     # tau = np.log(1/r2)/r0
     tau = np.random.exponential(1/r0)
-    #print(tau)
 
     if tau > TL:
         #reject
@@ -208,6 +206,8 @@ def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
 
     return tau
 
+
+# roba per testare, ignora
 if __name__ == '__main__':
     G = graph_creator()
     print(SSA_full(G))

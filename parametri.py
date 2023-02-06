@@ -37,5 +37,5 @@ p = 10 # fai cross validation
 
 # parametri KS test
 a = 0.05
-t_decimals = 4
+time_step = 0.5
 

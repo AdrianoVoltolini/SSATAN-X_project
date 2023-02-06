@@ -8,6 +8,8 @@ from ContactNetwork import graph_creator
 from parametri import n_graphs, tf, num_nodes
 from SSATANX import SSATANX_full
 
+# Questo script serve per trovare valori ottimali del parametro K (determina threshold di switch tau-leaping -> SSA)
+# e parametro P (numero di SSA da fare in caso siamo sotto il threshold)
 
 graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 

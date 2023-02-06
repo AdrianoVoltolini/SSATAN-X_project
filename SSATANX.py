@@ -110,15 +110,16 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input, s
         u = np.random.uniform()
 
         if a0 > BTl*u:
-            # print("accepting")
+            # "accepting"
             R_index = 0
 
             # cumulative sum delle propensities
             zeta = np.array(epidemic_propensities,dtype=tuple)[:,1].cumsum()
 
-            # Trova la prossima reazione utilizzando binary sort
+            # Trova la prossima reazione utilizzando binary search
             R_index = np.searchsorted(zeta,BTl*u)
 
+            # aggiorna il graph
             if epidemic_propensities[R_index][2] == "spread":
                 n1 = epidemic_propensities[R_index][0][0]
                 n2 = epidemic_propensities[R_index][0][1]
@@ -152,7 +153,7 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input, s
                 n1_edges = list(G.edges(n1))
                 G.remove_edges_from(n1_edges)
         else:
-            # print("thinning")  
+            # "thinning". Contact dynamics cambia, epidemic no.
             pass
         
         new_statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
@@ -174,6 +175,8 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input, s
         
         return (time_step, n_sus, n_inf, n_dia, n_mor, new_statuses)
 
+
+#roba per testare, ignora
 if __name__ == '__main__':
     G, ass_rates, dis_rates, statuses = graph_creator()
     t0 = 0

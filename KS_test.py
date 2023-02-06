@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
-from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k, p, a, t_decimals
+from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k, p, a, time_step
 
+# questo script determina se due distribuzioni possono essere considerate uguali
+# andando a vedere la loro distanza massima a certi valori di t
+# e confrontandola con un threshold
 
 G, ass_rates, dis_rates, statuses = graph_creator()
 t0_status = (round(num_nodes*t0_sani), round(num_nodes*t0_infetti), round(num_nodes*t0_diagnosed), round(num_nodes*t0_morti))
@@ -25,7 +28,7 @@ data_SSATANX = {}
 data_SSATANX[0] = t0_status
 output_SSATANX = []
 
-for t in np.arange(0.5,5.5,0.5):
+for t in np.arange(time_step,tf + time_step, time_step):
 
     while t0_SSA < t:
         output_SSA = SSA_full(G_SSA, t, t0_SSA, ass_rates, dis_rates, statuses_SSA)
@@ -59,7 +62,7 @@ status_diz = {0: "Susceptibles", 1: "Infected", 2: "Diagnosed", 3: "Dead"}
 cnt = 0
 for riga in data_diff.iterrows():
     riga_max = max(riga[1])
-    print(f"Status: {riga[0]}. Observed maximum distance: {riga_max}. Is distance below the threshold? {riga_max < condition}")
+    print(f"Status: {status_diz[riga[0]]}. Observed maximum distance: {riga_max}. Is distance below the threshold? {riga_max < condition}")
     axes[cnt].plot(data_SSA.columns, data_SSA.iloc[cnt,:])
     axes[cnt].plot(data_SSATANX.columns, data_SSATANX.iloc[cnt,:])
     axes[cnt].set_title(f"{status_diz[cnt]}")
