@@ -6,6 +6,7 @@ from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
 from parametri import tf, n_graphs, k, p
+from Tau_Leaping import tau_leap_new, tau_leap_old
 
 # questo script serve per misurare velocità media di SSA e SSATANX
 
@@ -22,7 +23,7 @@ def graph_elaborator(values):
 
     while t0 < tf:
         # output = SSA_full(G, tf, t0, ass_rates, dis_rates, statuses)
-        output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, k, p, statuses)
+        output = SSATANX_full(G, tf, t0, ass_rates, dis_rates, k, p, tau_leap_new, statuses)
         t0 += output[0]
         statuses = output[-1]
 

@@ -6,6 +6,7 @@ from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
 from parametri import tf, num_nodes, t0_sani, t0_infetti, t0_diagnosed, t0_morti, k, p, a, time_step
+from Tau_Leaping import tau_leap_new, tau_leap_old
 
 # questo script determina se due distribuzioni possono essere considerate uguali
 # andando a vedere la loro distanza massima a certi valori di t
@@ -32,11 +33,12 @@ for t in np.arange(time_step,tf + time_step, time_step):
 
     while t0_SSA < t:
         output_SSA = SSA_full(G_SSA, t, t0_SSA, ass_rates, dis_rates, statuses_SSA)
+        #output_SSA = SSATANX_full(G_SSATANX, t, t0_SSATANX, ass_rates, dis_rates, k, p, tau_leap_old, statuses_SSATANX)
         t0_SSA += output_SSA[0]
         statuses_SSA = output_SSA[-1]
 
     while t0_SSATANX < t:
-        output_SSATANX = SSATANX_full(G_SSATANX, t, t0_SSATANX, ass_rates, dis_rates,k,p, statuses_SSATANX)
+        output_SSATANX = SSATANX_full(G_SSATANX, t, t0_SSATANX, ass_rates, dis_rates, k, p, tau_leap_new, statuses_SSATANX)
         t0_SSATANX += output_SSATANX[0]
         statuses_SSATANX = output_SSATANX[-1]
 

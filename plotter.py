@@ -6,7 +6,8 @@ import numpy as np
 from ContactNetwork import graph_creator
 from SSA import SSA_full
 from SSATANX import SSATANX_full
-from parametri import tf, num_nodes
+from parametri import tf, num_nodes, k, p
+from Tau_Leaping import tau_leap_old, tau_leap_new
 
 # questo script fa animazione del network
 
@@ -22,8 +23,8 @@ def animate(frame):
     fig.clear()
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
     t = np.float64(G.name)
-    #output = SSATANX_full(G, tf, t, ass_rate, dis_rate, statuses)
-    output = SSA_full(G, ass_rate, dis_rate, statuses)
+    #output = SSATANX_full(G, tf, t, ass_rate, dis_rate, k, p, tau_leap_new, statuses)
+    output = SSA_full(G, tf, t, ass_rate, dis_rate, statuses)
     
     new_statuses = output[-1]
 
@@ -46,7 +47,7 @@ def animate(frame):
 
     plt.title(f"SSA Contact and Epidemic Dynamics. t = {t:.2f}")
 
-    # nx.draw_networkx_edges(G,pos) # disegna gli edge
+    nx.draw_networkx_edges(G,pos) # disegna gli edge
 
     nx.draw_networkx_nodes(G, pos, nodelist=sane_nodes, node_color="blue") # disegna e colora i nodi
     nx.draw_networkx_nodes(G, pos, nodelist=infected_nodes, node_color="red")

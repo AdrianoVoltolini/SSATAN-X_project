@@ -7,6 +7,7 @@ from multiprocessing import Pool
 from ContactNetwork import graph_creator
 from parametri import n_graphs, tf, num_nodes
 from SSATANX import SSATANX_full
+from Tau_Leaping import tau_leap_new, tau_leap_old
 
 # Questo script serve per trovare valori ottimali del parametro K (determina threshold di switch tau-leaping -> SSA)
 # e parametro P (numero di SSA da fare in caso siamo sotto il threshold)
@@ -31,7 +32,7 @@ def graph_elaborator(values):
 
             time_current = time.perf_counter()  
             while t0 < tf:
-                output = SSATANX_full(G_new, tf, t0, ass_rates, dis_rates, k, p, statuses)
+                output = SSATANX_full(G_new, tf, t0, ass_rates, dis_rates, k, p, tau_leap_new, statuses)
                 t0 += output[0]
                 statuses = output[-1]
 
