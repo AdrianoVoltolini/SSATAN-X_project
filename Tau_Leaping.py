@@ -4,12 +4,12 @@ import networkx as nx
 
 from parametri import (
     tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead,
-    p, k, alpha, alpha_star, epsilon, omega, omega_star)
+    k, p, alpha, alpha_star, epsilon, omega, omega_star)
 from SSA import SSA_contact
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, statuses):
+def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, k_input, p_input, statuses):
     #versione semplice di tau-leaping. L'altra versione è in fondo allo script
 
     delta_t = t_final - t_current
@@ -143,7 +143,7 @@ def tau_leap_old(G, t_final, t_current, ass_rates, dis_rates, p_input, k_input, 
     return tau
 
 # @profile #mi serve per misurare lentezza del codice
-def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,p_input,k_input, statuses):
+def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,k_input,p_input, statuses):
     # versione del paper di tau-leaping.
 
     delta_t = t_final - t_current
@@ -325,6 +325,6 @@ if __name__ == '__main__':
     dt = 0
     statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
     while dt < tf:
-        dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,p,k,statuses)
+        dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,k,p,statuses)
 
 

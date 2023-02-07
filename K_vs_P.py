@@ -67,12 +67,12 @@ if __name__ == '__main__':
     print(mean_dataframe)
 
     fig, ax = plt.subplots(1,1)
-    cp = ax.contourf(mean_dataframe.columns, mean_dataframe.index,mean_dataframe)
+    cp = ax.contourf(mean_dataframe.index, mean_dataframe.columns,mean_dataframe) #index: K, columns: P
     cbar = plt.colorbar(cp)
     cbar.set_label("Time (sec)")
-    ax.set_title(f"Contour Plot for P and K ({num_nodes} nodes)")
-    ax.set_xlabel("P")
-    ax.set_ylabel("K")
+    ax.set_title(f"Contour Plot for K and P ({num_nodes} nodes)")
+    ax.set_xlabel("K")
+    ax.set_ylabel("P")
     plt.show()
 
 

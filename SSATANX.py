@@ -1,12 +1,12 @@
 import numpy as np
 import networkx as nx
 
-from parametri import tf, num_nodes, gamma, w_gamma, beta, delta, p, k
+from parametri import tf, num_nodes, gamma, w_gamma, beta, delta, k, p
 from ContactNetwork import graph_creator
 from Tau_Leaping import tau_leap_old, tau_leap_new
 
 # @profile #mi serve per misurare lentezza del codice
-def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input,tau_leaper, statuses):
+def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, k_input, p_input,tau_leaper, statuses):
 
     TL = t_final - t_current
 
@@ -94,7 +94,7 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, p_input, k_input,ta
     else:
         t_leap = 0
         while t_leap < time_step: # tau leaping per contact dynamics
-            t_leap += tau_leaper(G, time_step, t_leap, ass_rates, dis_rates, p_input, k_input, statuses)
+            t_leap += tau_leaper(G, time_step, t_leap, ass_rates, dis_rates, k_input, p_input, statuses)
 
         #computa epidemic_propensities I+S e D+S
         for edge in G.edges():
@@ -181,7 +181,7 @@ if __name__ == '__main__':
     G, ass_rates, dis_rates, statuses = graph_creator()
     t0 = 0
     while t0 < tf:    
-        output = SSATANX_full(G,tf, t0, ass_rates, dis_rates,p,k, tau_leap_new, statuses)
+        output = SSATANX_full(G,tf, t0, ass_rates, dis_rates,k,p, tau_leap_new, statuses)
         t0 += output[0]
         statuses = output[-1]
         print(output)
