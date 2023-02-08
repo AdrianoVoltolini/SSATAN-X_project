@@ -321,9 +321,8 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,k_input,p_input, st
 
 # roba per testare, ignora
 if __name__ == '__main__':
-    G, ass_rates, dis_rates = graph_creator()
+    G, ass_rates, dis_rates, statuses = graph_creator()
     dt = 0
-    statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)] 
     while dt < tf:
         dt += tau_leap_new(G,tf,dt,ass_rates,dis_rates,k,p,statuses)
 

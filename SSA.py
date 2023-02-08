@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 
-from parametri import w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
+from parametri import tf, w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
@@ -209,6 +209,11 @@ def SSA_contact(G,t_final, t_current, ass_rates, dis_rates, statuses):
 
 # roba per testare, ignora
 if __name__ == '__main__':
-    G = graph_creator()
-    print(SSA_full(G))
-    # SSA_contact(G)
+    t0 = 0
+    G, ass_rates, dis_rates, statuses = graph_creator()
+
+    while t0 < tf:
+        output = SSA_full(G, tf, t0, ass_rates, dis_rates, statuses)
+        t0 += output[0]
+        statuses = output[-1]
+

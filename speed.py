@@ -71,7 +71,3 @@ if __name__ == '__main__':
     ax1.set_title("Speed Comparison")
     ax2.set_title("Steps Comparison")
     plt.show()
-
-
-    # print(f"Time: {results[:,0].mean():.2f} +- {results[:,0].std():.2f} seconds.")
-    # print(f"Number of steps: {results[:,1].mean():.0f} +- {results[:,1].std():.0f}")
