@@ -18,7 +18,7 @@ graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 def graph_elaborator(values):
 
     output_diz ={}
-    for i in ["SSATANX_new","SSATANX_old","SSA"]:
+    for i in ["SSATAN-X_simple","SSATAN-X_optimized", "SSA"]:
         t0 = 0
         cnt = 0
 
@@ -30,9 +30,9 @@ def graph_elaborator(values):
 
         while t0 < tf:
 
-            if i == "SSATANX_new":
+            if i == "SSATAN-X_optimized":
                 output = SSATANX_full(G_copy, tf, t0, ass_rates, dis_rates, k, p, tau_leap_new, statuses)
-            elif i == "SSATANX_old":
+            elif i == "SSATAN-X_simple":
                 output = SSATANX_full(G_copy, tf, t0, ass_rates, dis_rates, k, p, tau_leap_old, statuses)
             elif i == "SSA":
                 output = SSA_full(G_copy, tf, t0, ass_rates, dis_rates, statuses)
@@ -57,17 +57,16 @@ if __name__ == '__main__':
     time_mean = pd.Series({key: np.array([d[key][0] for d in results]).mean() for key in results[0].keys()})
     time_sd = pd.Series({key: np.array([d[key][0] for d in results]).std() for key in results[0].keys()})
 
-    step_mean = pd.Series({key: np.array([d[key][1] for d in results]).mean() for key in results[0].keys()})
-    step_sd = pd.Series({key: np.array([d[key][1] for d in results]).std() for key in results[0].keys()})
+    print(time_mean)
+    print(time_sd)
 
-    fig, (ax1,ax2) = plt.subplots(2,1, constrained_layout=True)
+    plt.bar(time_mean.index, time_mean, yerr=time_sd)
+    #ax2.bar(step_mean.index, step_mean, yerr=step_sd)
 
-    ax1.bar(time_mean.index, time_mean, yerr=time_sd)
-    ax2.bar(step_mean.index, step_mean, yerr=step_sd)
+    plt.ylabel("Time (seconds)")
+    #ax2.set_ylabel("Number of Steps")
+    #plt.xticks(rotation=45)
 
-    ax1.set_ylabel("Time (seconds)")
-    ax2.set_ylabel("Number of Steps")
-
-    ax1.set_title("Speed Comparison")
-    ax2.set_title("Steps Comparison")
+    plt.title("Speed Comparison")
+    #ax2.set_title("Steps Comparison")
     plt.show()
