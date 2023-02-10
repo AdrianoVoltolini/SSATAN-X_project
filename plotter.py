@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt, animation
+from matplotlib import pyplot as plt, animation, lines
 import networkx as nx
 import numpy as np
 #import ffmpeg
@@ -54,7 +54,15 @@ def animate(frame):
     nx.draw_networkx_nodes(G, pos, nodelist=diagnosed_nodes, node_color="brown")
     nx.draw_networkx_nodes(G, pos, nodelist=morti_nodes, node_color="black")
 
-    plt.axis([-1.2,1.2,-1.2,1.2]) #margini di matplotlib
+    #crea la legenda
+    artist_contact = lines.Line2D([],[],color= "black",label="Contact")
+    artist_sus = lines.Line2D([],[],marker="o",color="w", markerfacecolor="blue", markersize=12, label="Susceptible")
+    artist_inf = lines.Line2D([],[],marker="o",color="w", markerfacecolor="red", markersize=12, label="Infected")
+    artist_dia = lines.Line2D([],[],marker="o",color="w", markerfacecolor="brown", markersize=12, label="Diagnosed")
+    artist_mor = lines.Line2D([],[],marker="o",color="w", markerfacecolor="black", markersize=12, label="Dead")
+    plt.legend(handles=[artist_contact,artist_sus,artist_inf,artist_dia,artist_mor])
+
+    plt.axis([-1.5,1.5,-1.5,1.5]) #margini di matplotlib
     plt.tight_layout()
 
 ani = animation.FuncAnimation(fig, animate, interval=100, frames=360)
