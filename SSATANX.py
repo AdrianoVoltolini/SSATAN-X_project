@@ -156,7 +156,8 @@ def SSATANX_full(G,t_final, t_current, ass_rates, dis_rates, k_input, p_input,ta
             # "thinning". Contact dynamics cambia, epidemic no.
             pass
         
-        new_statuses = [nx.get_node_attributes(G,"status")[x] for x in range(num_nodes)]
+        diz_statuses = nx.get_node_attributes(G,"status")
+        new_statuses = [diz_statuses[x] for x in range(num_nodes)]
 
         n_sus = 0
         n_inf = 0
@@ -184,4 +185,3 @@ if __name__ == '__main__':
         output = SSATANX_full(G,tf, t0, ass_rates, dis_rates,k,p, tau_leap_new, statuses)
         t0 += output[0]
         statuses = output[-1]
-        print(output)

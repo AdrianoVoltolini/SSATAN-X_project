@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 
-from parametri import tf, w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
+from parametri import tf, num_nodes, w_sano, w_infetto, w_diagnosed, w_dead, gamma, w_gamma, beta, delta
 from ContactNetwork import graph_creator
 
 # @profile #mi serve per misurare lentezza del codice
@@ -128,7 +128,8 @@ def SSA_full(G, t_final, t_current, ass_rates, dis_rates, statuses):
         n1_edges = list(G.edges(n1))
         G.remove_edges_from(n1_edges)
 
-    new_statuses = list(nx.get_node_attributes(G,"status").values())
+    diz_statuses = nx.get_node_attributes(G,"status")
+    new_statuses = [diz_statuses[x] for x in range(num_nodes)]
 
     n_sus = 0
     n_inf = 0

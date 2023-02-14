@@ -11,6 +11,7 @@ from Tau_Leaping import tau_leap_new, tau_leap_old
 
 # Questo script serve per trovare valori ottimali del parametro K (determina threshold di switch tau-leaping -> SSA)
 # e parametro P (numero di SSA da fare in caso siamo sotto il threshold)
+# costruendo un contour plot
 
 graph_list = [graph_creator(str(x)) for x in range(n_graphs)]
 
