@@ -11,7 +11,7 @@ Main scripts:
 
 Additional scripts:
  - grafici.py: used to create the plots shown in figure ???.
- - K_vs_P.py: used to create a contour plot. It computes 100*N simulations, where N is the number of parallelizations (in our case, 12).
+ - K_vs_P.py: used to create a contour plot that describes how the speed of SSATAN-X depending on the values of K and P. It computes 100*N simulations, where N is the number of parallelizations (in our case, 12).
  - KS_test.py: used to compare two empirical distribution functions (SSA vs SSATAN-X). 
  - plotter.py: used to create an animation.
  - speed.py: used to measure the average speed of the SSA and the SSATAN-X algorithm.
