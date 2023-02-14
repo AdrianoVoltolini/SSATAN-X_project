@@ -1,6 +1,7 @@
 # SSATAN-X project
 
 Requires: Python 3.7+, Networkx 3.0+, Numpy, Pandas, Matplotlib
+
 Optional: ffmpeg if you want to save a gif, line_profiler if you want to open or create .lprof files
 
 Main scripts:
