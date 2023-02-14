@@ -1,6 +1,8 @@
 # SSATAN-X project
 
-Requires Python 3.7+, Networkx 3.0+, Numpy, Pandas, Matplotlib (and ffmpeg if you want to save a gif)
+Requires: Python 3.7+, Networkx 3.0+, Numpy, Pandas, Matplotlib
+
+Optional: ffmpeg if you want to save a gif, line_profiler if you want to open or create .lprof files
 
 Main scripts:
  - parameters.py: contains all the parameters used in our project. Changing values in here will change the outputs of the other python scripts.
@@ -14,4 +16,4 @@ Additional scripts:
  - K_vs_P.py: used to create a contour plot that describes how the speed of SSATAN-X changes depending on the values of K and P. It computes 100*N simulations, where N is the number of parallelizations (in our case, 12).
  - KS_test.py: used to compare two empirical distribution functions (SSA vs SSATAN-X). 
  - plotter.py: used to create an animation.
- - speed.py: used to measure the average speed of the SSA and the SSATAN-X algorithm.
+ - speed.py: used to measure the average speed of the SSA and the SSATAN-X algorithms.
