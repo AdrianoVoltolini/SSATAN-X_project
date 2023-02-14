@@ -192,10 +192,10 @@ def tau_leap_new(G, t_final, t_current, ass_rates, dis_rates,k_input,p_input, st
 
     r0_tot = r0[0] + r0[1]
 
-    tau_a = max(epsilon*E,1)/(abs(mu)*2) # nel paper il *2 non c'è, mentre nel libro sì
-    tau_b = (max(epsilon*E,1)**2)/(sigma2*4) # nel paper il *4 non c'è, mentre nel libro sì
-    tau_c = max(epsilon*E_prime,1)/(abs(mu_prime)*2)
-    tau_d = (max(epsilon*E_prime,1)**2)/(sigma2*4)
+    tau_a = max(epsilon*E,1)/(abs(mu)) # nel paper il *2 non c'è, mentre nel libro sì
+    tau_b = (max(epsilon*E,1)**2)/(sigma2) # nel paper il *4 non c'è, mentre nel libro sì
+    tau_c = max(epsilon*E_prime,1)/(abs(mu_prime))
+    tau_d = (max(epsilon*E_prime,1)**2)/(sigma2)
 
     tau_temp = min(tau_a,tau_b,tau_c,tau_d)
 
