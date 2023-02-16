@@ -1,5 +1,7 @@
 # SSATAN-X project
 
+Python implementation of the SSATAN-X algorithm that works on Networkx graphs. This project was done for the course "Mathematical Modeling and Simulation", offered by the University of Trento. 
+
 Requires: Python 3.7+, Networkx 3.0+, Numpy, Pandas, Matplotlib
 
 Optional: ffmpeg if you want to save a gif, line_profiler if you want to open or create .lprof files
